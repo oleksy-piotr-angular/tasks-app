@@ -1,9 +1,12 @@
 <!-- Toolbar -->
-<!-- <div class="toolbar" *ngIf="isMenuRequired" role="banner"> -->
-<span>Welcome</span>
-<a routerLink="">Home</a>
-<!--  <a *ngIf="isAdminUser" routerLink="/user">User</a> -->
+<div class="toolbar" *ngIf="isMenuRequired" role="banner">
+  <button (click)="proceedLogOut()">
+    Logout:<br />
+    {{ email }}
+  </button>
+  <h1>Welcome in Demo Tasks App</h1>
+</div>
 <div class="spacer"></div>
-<a routerLink="/login">Logout</a>
+
 <!-- </div> -->
 <router-outlet></router-outlet>

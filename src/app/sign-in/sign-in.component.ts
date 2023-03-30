@@ -16,16 +16,15 @@ export class SignInComponent {
     private builder: FormBuilder,
     private toastr: ToastrService,
     private router: Router
-  ) {
-    /* this.user.email = 'servertest3@test.pl';
-    this.user.password = 'testtest'; */
-  }
+  ) {}
+  isLoading: boolean = false;
   loginForm = this.builder.group({
     userName: this.builder.nonNullable.control('', Validators.required),
     password: this.builder.nonNullable.control('', Validators.required),
   });
 
-  proceedLogin() {
+  proceedSignIn() {
+    this.isLoading = true;
     if (this.loginForm.valid) {
       const user = {
         email: this.loginForm.value.userName,
@@ -34,12 +33,30 @@ export class SignInComponent {
       this.signIn(user);
     }
   }
-  signIn(user: User) {
-    this.userService.signIn(user);
-    this.userService.getUserData().subscribe((data) => {
-      console.log(data.email);
-      console.log(data.sessionToken);
-    });
-    /*console.log(this.userService.getUserSessionToken); */
+  async signIn(user: User) {
+    await this.userService
+      .signIn(user)
+      .then((response) => {
+        this.userService.setUserData({
+          email: user.email,
+          sessionToken: response.sessionToken,
+        });
+      })
+      .then(async (response) => {
+        if (this.userService.isLoggedIn()) {
+          this.toastr.clear();
+          this.toastr.success('You have successfully Sign in...');
+          console.log('email:');
+          console.log(sessionStorage.getItem('email'));
+          console.log('token:');
+          console.log(sessionStorage.getItem('token'));
+          this.router.navigate(['']);
+        }
+      })
+      .catch((e) => {
+        this.toastr.clear();
+        this.toastr.error(e);
+        this.isLoading = false;
+      });
   }
 }
