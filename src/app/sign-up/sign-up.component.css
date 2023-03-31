@@ -1,0 +1,11 @@
+h1 {
+  color: white;
+}
+.example-form {
+  display: flex;
+  flex-direction: column;
+  width: 40%;
+}
+.errorMessage {
+  color: red;
+}

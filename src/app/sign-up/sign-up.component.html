@@ -1,1 +1,82 @@
-<p>sign-up works!</p>
+<!-- SET Validations for "Angular Forms"
+https://www.youtube.com/watch?v=Gt9odQS9w80 -->
+<mat-card>
+  <mat-card-header>
+    <h1>User Sign up</h1>
+  </mat-card-header>
+  <mat-card-content>
+    <form
+      class="example-form"
+      [formGroup]="reactiveForm"
+      (ngSubmit)="proceedSignUp()"
+    >
+      <mat-form-field class="example-full-width">
+        <mat-label>E-mail:</mat-label>
+        <input matInput placeholder="Email" formControlName="email" />
+        <span
+          *ngIf="getFormControl['email'].getError('required') != null"
+          class="errorMessage"
+          >Email is Required</span
+        >
+        <span
+          *ngIf="getFormControl['email'].getError('pattern') != null"
+          class="errorMessage"
+          >Invalid Email</span
+        >
+      </mat-form-field>
+      <mat-form-field class="example-full-width">
+        <mat-label>Password:</mat-label>
+        <input
+          type="password"
+          matInput
+          placeholder="Password"
+          formControlName="password"
+        />
+        <span
+          *ngIf="getFormControl['password'].getError('required') != null"
+          class="errorMessage"
+          >Password is Required</span
+        >
+        <span
+          *ngIf="getFormControl['password'].getError('pattern') != null"
+          class="errorMessage"
+          >Password should have minimum 8 characters, at least 1 uppercase
+          letter, 1 lowercase letter, 1 number and 1 special character</span
+        >
+      </mat-form-field>
+      <mat-form-field class="example-full-width">
+        <mat-label>Confirm password:</mat-label>
+        <input
+          type="password"
+          matInput
+          placeholder="Retype Password"
+          formControlName="confirmPassword"
+        />
+        <span
+          *ngIf="getFormControl['confirmPassword'].getError('required') != null"
+          class="errorMessage"
+          >Confirm password is Required</span
+        >
+        <span
+          *ngIf="
+            getFormControl['confirmPassword'].getError('mustMatch') != null
+          "
+          class="errorMessage"
+          >Confirmed password is different from Password</span
+        >
+      </mat-form-field>
+      <div>
+        <button
+          [disabled]="reactiveForm.invalid"
+          mat-raised-button
+          color="primary"
+        >
+          Sign up
+        </button>
+        <a routerLink="/signin" mat-raised-button color="accent"
+          >back to Sign in</a
+        >
+      </div>
+    </form>
+  </mat-card-content>
+</mat-card>

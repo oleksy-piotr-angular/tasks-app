@@ -19,7 +19,7 @@ export class SignInComponent {
   ) {}
   isLoading: boolean = false;
   loginForm = this.builder.group({
-    userName: this.builder.nonNullable.control('', Validators.required),
+    email: this.builder.nonNullable.control('', Validators.required),
     password: this.builder.nonNullable.control('', Validators.required),
   });
 
@@ -27,7 +27,7 @@ export class SignInComponent {
     this.isLoading = true;
     if (this.loginForm.valid) {
       const user = {
-        email: this.loginForm.value.userName,
+        email: this.loginForm.value.email,
         password: this.loginForm.value.password,
       };
       this.signIn(user);
