@@ -16,6 +16,7 @@ import { Router } from '@angular/router';
 })
 export class SignUpComponent {
   reactiveForm!: FormGroup;
+  isLoading: boolean = false;
 
   constructor(
     private userService: UserService,
@@ -75,5 +76,31 @@ export class SignUpComponent {
     };
   }
 
-  proceedSignUp() {}
+  proceedSignUp() {
+    this.isLoading = true;
+    console.log('sign-up(proceed SignUp)');
+    if (this.reactiveForm.valid) {
+      const user = {
+        email: this.reactiveForm.value.email,
+        password: this.reactiveForm.value.password,
+      };
+      this.signUp(user);
+    }
+  }
+
+  async signUp(user: User) {
+    await this.userService
+      .signUp(user)
+      .then(async (response) => {
+        this.toastr.clear();
+        this.toastr.success('You have successfully Sign Up...');
+        this.router.navigate(['signin']);
+      })
+      .catch((err) => {
+        const errorMessage = err.error[Object.keys(err.error)[0]]; //extract Error Message
+        this.toastr.clear();
+        this.toastr.error(errorMessage);
+        this.isLoading = false;
+      });
+  }
 }

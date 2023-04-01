@@ -13,6 +13,7 @@ import { ToastrModule } from 'ngx-toastr';
 import { SignUpComponent } from './sign-up/sign-up.component';
 import { TasksComponent } from './tasks/tasks.component';
 import { UserService } from './services/user.service';
+import { TaskService } from './services/task.service';
 
 @NgModule({
   declarations: [
@@ -30,7 +31,7 @@ import { UserService } from './services/user.service';
     HttpClientModule,
     ToastrModule.forRoot(),
   ],
-  providers: [HttpService, UserService],
+  providers: [HttpService, UserService, TaskService],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

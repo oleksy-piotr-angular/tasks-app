@@ -53,9 +53,10 @@ export class SignInComponent {
           this.router.navigate(['']);
         }
       })
-      .catch((e) => {
+      .catch((err) => {
         this.toastr.clear();
-        this.toastr.error(e);
+        const errorMessage = err.error[Object.keys(err.error)[0]]; //extract Error Message
+        this.toastr.error(errorMessage);
         this.isLoading = false;
       });
   }

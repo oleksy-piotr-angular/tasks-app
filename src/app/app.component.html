@@ -1,10 +1,12 @@
 <!-- Toolbar -->
-<div class="toolbar" *ngIf="isMenuRequired" role="banner">
-  <button (click)="proceedLogOut()">
-    Logout:<br />
-    {{ email }}
-  </button>
+<div class="toolbar" role="banner">
   <h1>Welcome in Demo Tasks App</h1>
+  <div *ngIf="isMenuRequired">
+    <button (click)="proceedLogOut()">
+      Logout:<br />
+      {{ email }}
+    </button>
+  </div>
 </div>
 <div class="spacer"></div>
 

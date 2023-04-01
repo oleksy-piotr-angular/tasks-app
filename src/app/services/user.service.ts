@@ -32,5 +32,14 @@ export class UserService {
     return sessionStorage.getItem('email') != undefined;
   }
 
-  async signUp(_user: User) {}
+  async signUp(_user: User) {
+    console.log('userService-singUp');
+    this.toastr.info('Please wait...');
+    try {
+      const responseData$ = await this.http.signUpRequest(_user);
+      return lastValueFrom(responseData$);
+    } catch (err) {
+      throw err;
+    }
+  }
 }
