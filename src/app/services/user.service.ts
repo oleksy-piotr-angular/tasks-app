@@ -6,6 +6,7 @@ import { Subject, lastValueFrom, Observable } from 'rxjs';
 
 @Injectable()
 export class UserService {
+  private readonly TOKEN_NAME = 'user_auth';
   constructor(private http: HttpService, private toastr: ToastrService) {}
   async signIn(_user: User) {
     console.log('userService-singIn');
@@ -17,19 +18,22 @@ export class UserService {
       throw 'Invalid Credentials';
     }
   }
-  getUserToken() {
-    return sessionStorage.getItem('token');
+  get getAuthToken(): string | null {
+    return localStorage.getItem(this.TOKEN_NAME);
   }
   setUserData(data: User) {
     console.log('userService-setUserData');
-    sessionStorage.setItem('email', data.email ? data.email : '');
-    sessionStorage.setItem('token', data.sessionToken ? data.sessionToken : '');
-    console.log('User data has been set');
+    localStorage.setItem('email', data.email ? data.email : '');
+    localStorage.setItem(
+      this.TOKEN_NAME,
+      data.sessionToken ? data.sessionToken : ''
+    );
+    console.log('User auth data has been set');
   }
 
   isLoggedIn(): boolean {
     console.log('userService-isLoggedIn');
-    return sessionStorage.getItem('email') != undefined;
+    return localStorage.getItem(this.TOKEN_NAME) != undefined;
   }
 
   async signUp(_user: User) {

@@ -1,0 +1,15 @@
+.odd-li {
+  background: lavender;
+  margin: 5px;
+}
+.last-list {
+  background: pink;
+  margin: 5px;
+}
+
+li > p {
+  /* to not move whole element we show Data info above it */
+  z-index: 100;
+  position: absolute;
+  background-color: yellow;
+}

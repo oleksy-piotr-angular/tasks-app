@@ -14,8 +14,8 @@ export class AppComponent implements DoCheck {
   constructor(private router: Router, private toastr: ToastrService) {}
 
   proceedLogOut() {
-    sessionStorage.removeItem('email');
-    sessionStorage.removeItem('token');
+    localStorage.removeItem('email');
+    localStorage.removeItem('user_auth');
     this.toastr.clear();
     this.toastr.success('You have successfully logged out');
     this.router.navigate(['signin']);
@@ -25,7 +25,7 @@ export class AppComponent implements DoCheck {
     if (currentURL == '/signin' || currentURL == '/register') {
       this.isMenuRequired = false;
     } else {
-      this.email = sessionStorage.getItem('email');
+      this.email = localStorage.getItem('email');
       this.isMenuRequired = true;
     }
   }

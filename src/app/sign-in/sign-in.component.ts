@@ -47,9 +47,9 @@ export class SignInComponent {
           this.toastr.clear();
           this.toastr.success('You have successfully Sign in...');
           console.log('email:');
-          console.log(sessionStorage.getItem('email'));
+          console.log(localStorage.getItem('email'));
           console.log('token:');
-          console.log(sessionStorage.getItem('token'));
+          console.log(localStorage.getItem('user_auth'));
           this.router.navigate(['']);
         }
       })

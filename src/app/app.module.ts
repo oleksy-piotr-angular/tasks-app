@@ -8,12 +8,20 @@ import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { SignInComponent } from './sign-in/sign-in.component';
 import { ReactiveFormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { ToastrModule } from 'ngx-toastr';
 import { SignUpComponent } from './sign-up/sign-up.component';
 import { TasksComponent } from './tasks/tasks.component';
 import { UserService } from './services/user.service';
 import { TaskService } from './services/task.service';
+import { AuthInterceptorService } from './shared/auth.interceptor';
+import { TodoTaskComponent } from './tasks/todo-task/todo-task.component';
+import { DoneTaskComponent } from './tasks/done-task/done-task.component';
+import { AddTaskComponent } from './tasks/add-task/add-task.component';
+import { TransformTaskPipe } from './shared/transform-task.pipe';
+import { SortNamePipe } from './shared/sort-name.pipe';
+import { DateDirective } from './shared/date.directive';
+import { CheckedDirective } from './shared/checked.directive';
 
 @NgModule({
   declarations: [
@@ -21,6 +29,13 @@ import { TaskService } from './services/task.service';
     SignInComponent,
     SignUpComponent,
     TasksComponent,
+    TodoTaskComponent,
+    DoneTaskComponent,
+    AddTaskComponent,
+    TransformTaskPipe,
+    SortNamePipe,
+    DateDirective,
+    CheckedDirective,
   ],
   imports: [
     BrowserModule,
@@ -31,7 +46,16 @@ import { TaskService } from './services/task.service';
     HttpClientModule,
     ToastrModule.forRoot(),
   ],
-  providers: [HttpService, UserService, TaskService],
+  providers: [
+    HttpService,
+    UserService,
+    TaskService,
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptorService,
+      multi: true,
+    },
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule {}
