@@ -13,7 +13,6 @@ export class HttpService {
 
   //USER requests
   async signInRequest(user: User): Promise<Observable<User>> {
-    console.log('SignIn Request.');
     const endpoint = 'user/login';
     return this.http
       .post<User>(this.apiUrl + endpoint, {
@@ -30,7 +29,6 @@ export class HttpService {
   }
 
   async signUpRequest(user: User): Promise<Observable<User>> {
-    console.log('SignUp Request.');
     const endpoint = 'user/signup';
     const httpHeaders = new HttpHeaders();
     return this.http
@@ -48,36 +46,62 @@ export class HttpService {
   }
 
   //TASK requests
-  getTask(): Observable<Array<Task>> {
+  async getTask(): Promise<Observable<Array<Task>>> {
     const endpoint = 'tasks/myTasks';
-    return this.http.get<Array<Task>>(this.apiUrl + endpoint, {
-      responseType: 'json',
-    });
+    return this.http
+      .get<Array<Task>>(this.apiUrl + endpoint, {
+        responseType: 'json',
+      })
+      .pipe(
+        retry(1),
+        catchError((err) => {
+          throw err;
+        }),
+        map((response) => response)
+      );
   }
-  saveOneTask(task: Task) {
+  async saveOneTask(task: Task): Promise<Observable<Task>> {
     const endpoint = 'tasks/create';
-    this.http.post(this.apiUrl + endpoint, task).subscribe((response) => {
-      console.log(response);
-    });
+    return this.http.post<Task>(this.apiUrl + endpoint, task).pipe(
+      retry(1),
+      catchError((err) => {
+        throw err;
+      }),
+      map((response) => response)
+    );
   }
-  removeOneTask(task: Task) {
+  async removeOneTask(task: Task): Promise<Observable<Task>> {
     const task_ID = task._id;
     const endpoint = 'tasks/removeTask/';
-    this.http.delete(this.apiUrl + endpoint + task_ID).subscribe((response) => {
-      console.log(response);
-    });
+    return this.http.delete<Task>(this.apiUrl + endpoint + task_ID).pipe(
+      retry(1),
+      catchError((err) => {
+        throw err;
+      }),
+      map((response) => response)
+    );
   }
-  updateOneTaskToDone(task: Task) {
+  async updateOneTaskToDone(task: Task): Promise<Observable<Task>> {
     const endpoint = 'tasks/updateTask/';
     const task_ID = task._id;
-    const updateBody = {
-      propName: 'isDone',
-      value: true,
-    };
-    this.http
-      .patch(this.apiUrl + endpoint + task_ID, updateBody)
-      .subscribe((response) => {
-        console.log(response);
-      });
+    const updateBody = [
+      {
+        propName: 'isDone',
+        value: true,
+      },
+      {
+        propName: 'end',
+        value: task.end,
+      },
+    ];
+    return this.http
+      .patch<Task>(this.apiUrl + endpoint + task_ID, updateBody)
+      .pipe(
+        retry(1),
+        catchError((err) => {
+          throw err;
+        }),
+        map((response) => response)
+      );
   }
 }

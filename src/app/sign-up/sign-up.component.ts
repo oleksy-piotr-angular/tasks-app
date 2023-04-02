@@ -78,7 +78,6 @@ export class SignUpComponent {
 
   proceedSignUp() {
     this.isLoading = true;
-    console.log('sign-up(proceed SignUp)');
     if (this.reactiveForm.valid) {
       const user = {
         email: this.reactiveForm.value.email,

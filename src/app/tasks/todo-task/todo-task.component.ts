@@ -10,6 +10,7 @@ import { TaskService } from 'src/app/services/task.service';
 export class TodoTaskComponent {
   tasksList: Array<Task> = [];
   constructor(private tasksService: TaskService) {
+    //this.tasksService.getTasksFromDB();
     this.tasksService.getTasksList$().subscribe((tasks: Task[]) => {
       this.tasksList = tasks.filter((t) => t.isDone === false).slice();
     });

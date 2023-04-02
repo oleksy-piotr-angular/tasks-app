@@ -46,10 +46,6 @@ export class SignInComponent {
         if (this.userService.isLoggedIn()) {
           this.toastr.clear();
           this.toastr.success('You have successfully Sign in...');
-          console.log('email:');
-          console.log(localStorage.getItem('email'));
-          console.log('token:');
-          console.log(localStorage.getItem('user_auth'));
           this.router.navigate(['']);
         }
       })

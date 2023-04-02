@@ -32,8 +32,10 @@ export class AuthInterceptorService implements HttpInterceptor {
       catchError((err) => {
         console.log('AuthInterceptor Error!');
         if (err instanceof HttpErrorResponse) {
+          this.router.navigate(['']); //redirect User to Logout|?maybe JWT session time expired?
+          console.log('AuthInterceptor Error!- HttpErrorResponse');
           if (err.status === 401) {
-            this.router.navigate(['']); //redirect User to Logout|?maybe JWT session time expired?
+            console.log('AuthInterceptor Error!-HTTP 401 ERROR');
           }
         }
         throw err;

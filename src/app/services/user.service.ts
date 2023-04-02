@@ -9,7 +9,6 @@ export class UserService {
   private readonly TOKEN_NAME = 'user_auth';
   constructor(private http: HttpService, private toastr: ToastrService) {}
   async signIn(_user: User) {
-    console.log('userService-singIn');
     this.toastr.info('Please wait...');
     try {
       const responseData$ = await this.http.signInRequest(_user);
@@ -22,7 +21,6 @@ export class UserService {
     return localStorage.getItem(this.TOKEN_NAME);
   }
   setUserData(data: User) {
-    console.log('userService-setUserData');
     localStorage.setItem('email', data.email ? data.email : '');
     localStorage.setItem(
       this.TOKEN_NAME,
@@ -32,12 +30,10 @@ export class UserService {
   }
 
   isLoggedIn(): boolean {
-    console.log('userService-isLoggedIn');
     return localStorage.getItem(this.TOKEN_NAME) != undefined;
   }
 
   async signUp(_user: User) {
-    console.log('userService-singUp');
     this.toastr.info('Please wait...');
     try {
       const responseData$ = await this.http.signUpRequest(_user);

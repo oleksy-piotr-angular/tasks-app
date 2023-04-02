@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, lastValueFrom } from 'rxjs';
 import { Task } from '../models/task';
 import { HttpService } from './http.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Injectable({
   providedIn: 'root',
@@ -9,7 +10,7 @@ import { HttpService } from './http.service';
 export class TaskService {
   private tasksList$ = new BehaviorSubject<Array<Task>>([]);
 
-  constructor(private http: HttpService) {
+  constructor(private http: HttpService, private toastr: ToastrService) {
     this.getTasksFromDB();
   }
 
@@ -17,40 +18,92 @@ export class TaskService {
     return this.tasksList$.asObservable();
   }
 
-  getTasksFromDB() {
-    this.http.getTask().subscribe((tasks) => {
-      const requestArray = Object.values(tasks);
-      const listOfTasks: Task[] = Object.values(requestArray[0]);
-      this.tasksList$.next(listOfTasks);
-      console.log(listOfTasks);
-    });
-  }
-  add(task: Task) {
+  async add(task: Task) {
     const tasksList = this.tasksList$.getValue();
     tasksList.push(task);
     this.tasksList$.next(tasksList);
-    this.saveOneTaskInDB(task);
-    this.getTasksFromDB();
+    await this.saveOneTaskInDB(task)
+      .then(async (response) => {
+        this.toastr.clear();
+        this.toastr.success('Successfully saved.');
+      })
+      .catch((err) => {
+        const errorMessage = err.error[Object.keys(err.error)[0]]; //extract Error Message
+        this.toastr.clear();
+        this.toastr.error(errorMessage);
+      });
+
+    this.getTasksFromDB(); //need to reload list to Take Task ID
   }
-  remove(task: Task) {
+  async remove(task: Task) {
     const tasksList = this.tasksList$.getValue().filter((item) => item != task);
     this.tasksList$.next(tasksList);
-    this.removeOneTaskInDB(task);
+    await this.removeOneTaskInDB(task)
+      .then((_response) => {
+        this.toastr.clear();
+        const response = Object.values(_response);
+        this.toastr.success(response[0]); //message Response
+      })
+      .catch((err) => {
+        const errorMessage = err.error[Object.keys(err.error)[0]]; //extract Error Message
+        this.toastr.clear();
+        this.toastr.error(errorMessage);
+      });
   }
-  done(task: Task) {
+  async done(task: Task) {
     task.end = new Date().toLocaleString();
     task.isDone = true;
     const tasksList = this.tasksList$.getValue();
     this.tasksList$.next(tasksList);
-    this.updateOneTaskInDB(task);
+    await this.updateOneTaskInDB(task)
+      .then((_response) => {
+        this.toastr.clear();
+        const response = Object.values(_response);
+        this.toastr.success(response[0]); //message Response
+      })
+      .catch((err) => {
+        const errorMessage = err.error[Object.keys(err.error)[0]]; //extract Error Message
+        this.toastr.clear();
+        this.toastr.error(errorMessage);
+      });
   }
-  saveOneTaskInDB(task: Task) {
-    this.http.saveOneTask(task);
+
+  //Async functions with API Requests
+  async updateOneTaskInDB(task: Task) {
+    try {
+      const responseData$ = await this.http.updateOneTaskToDone(task);
+      return lastValueFrom(responseData$);
+    } catch (err) {
+      throw err;
+    }
   }
-  updateOneTaskInDB(task: Task) {
-    this.http.updateOneTaskToDone(task);
+  async removeOneTaskInDB(task: Task) {
+    try {
+      const responseData$ = await this.http.removeOneTask(task);
+      return lastValueFrom(responseData$);
+    } catch (err) {
+      throw err;
+    }
   }
-  removeOneTaskInDB(task: Task) {
-    this.http.removeOneTask(task);
+  async saveOneTaskInDB(task: Task) {
+    try {
+      const responseData$ = await this.http.saveOneTask(task);
+      return lastValueFrom(responseData$);
+    } catch (err) {
+      throw err;
+    }
+  }
+  async getTasksFromDB() {
+    this.toastr.info('Loading...');
+    try {
+      (await this.http.getTask()).subscribe((tasks) => {
+        const responseArray = Object.values(tasks);
+        const listOfTasks: Task[] = Object.values(responseArray[0]);
+        this.tasksList$.next(listOfTasks);
+        this.toastr.clear();
+      });
+    } catch (err) {
+      throw err;
+    }
   }
 }

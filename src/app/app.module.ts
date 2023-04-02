@@ -2,6 +2,7 @@ import { HttpService } from './services/http.service';
 import { MaterialModule } from './../material.module';
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { FormsModule } from '@angular/forms';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -45,6 +46,7 @@ import { CheckedDirective } from './shared/checked.directive';
     ReactiveFormsModule,
     HttpClientModule,
     ToastrModule.forRoot(),
+    FormsModule,
   ],
   providers: [
     HttpService,
