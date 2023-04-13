@@ -4,6 +4,7 @@ import { UserService } from '../services/user.service';
 import { ToastrService } from 'ngx-toastr';
 import { Router } from '@angular/router';
 import { User } from '../models/user';
+import { TaskService } from '../services/task.service';
 
 @Component({
   selector: 'app-sign-in',
@@ -15,7 +16,8 @@ export class SignInComponent {
     private userService: UserService,
     private builder: FormBuilder,
     private toastr: ToastrService,
-    private router: Router
+    private router: Router,
+    private taskService: TaskService
   ) {}
   isLoading: boolean = false;
   loginForm = this.builder.group({
@@ -46,6 +48,7 @@ export class SignInComponent {
         if (this.userService.isLoggedIn()) {
           this.toastr.clear();
           this.toastr.success('You have successfully Sign in...');
+          this.taskService.getTasksFromDB();
           this.router.navigate(['']);
         }
       })

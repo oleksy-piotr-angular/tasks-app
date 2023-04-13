@@ -1,6 +1,7 @@
 import { Component, DoCheck, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
+import { TaskService } from './services/task.service';
 
 @Component({
   selector: 'app-root',
@@ -11,9 +12,14 @@ export class AppComponent implements DoCheck {
   title = 'tasks-app';
   email: string | null = '';
   isMenuRequired: boolean = false;
-  constructor(private router: Router, private toastr: ToastrService) {}
+  constructor(
+    private router: Router,
+    private toastr: ToastrService,
+    private taskService: TaskService
+  ) {}
 
   proceedLogOut() {
+    this.taskService.clearTasksList();
     localStorage.removeItem('email');
     localStorage.removeItem('user_auth');
     this.toastr.clear();

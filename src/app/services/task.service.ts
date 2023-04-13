@@ -106,4 +106,8 @@ export class TaskService {
       throw err;
     }
   }
+
+  clearTasksList() {
+    this.tasksList$.next([]);
+  }
 }
