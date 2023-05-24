@@ -35,4 +35,7 @@ export class AppComponent implements DoCheck {
       this.isMenuRequired = true;
     }
   }
+  isLoading(): boolean {
+    return localStorage.hasOwnProperty('isLoading');
+  }
 }

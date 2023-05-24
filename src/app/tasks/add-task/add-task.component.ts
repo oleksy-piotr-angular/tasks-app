@@ -19,4 +19,7 @@ export class AddTaskComponent {
     this.taskService.add(task);
     this.newTask = '';
   }
+  isLoading(): boolean {
+    return localStorage.hasOwnProperty('isLoading');
+  }
 }

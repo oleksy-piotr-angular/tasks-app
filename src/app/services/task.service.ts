@@ -3,6 +3,7 @@ import { BehaviorSubject, Observable, lastValueFrom } from 'rxjs';
 import { Task } from '../models/task';
 import { HttpService } from './http.service';
 import { ToastrService } from 'ngx-toastr';
+import { UserService } from './user.service';
 
 @Injectable({
   providedIn: 'root',
@@ -10,8 +11,14 @@ import { ToastrService } from 'ngx-toastr';
 export class TaskService {
   private tasksList$ = new BehaviorSubject<Array<Task>>([]);
 
-  constructor(private http: HttpService, private toastr: ToastrService) {
-    this.getTasksFromDB();
+  constructor(
+    private http: HttpService,
+    private user: UserService,
+    private toastr: ToastrService
+  ) {
+    if (user.isLoggedIn()) {
+      this.getTasksFromDB();
+    }
   }
 
   getTasksList$(): Observable<Array<Task>> {
@@ -19,6 +26,7 @@ export class TaskService {
   }
 
   async add(task: Task) {
+    localStorage.setItem('isLoading', 'yes');
     const tasksList = this.tasksList$.getValue();
     tasksList.push(task);
     this.tasksList$.next(tasksList);
@@ -36,6 +44,7 @@ export class TaskService {
     this.getTasksFromDB(); //need to reload list to Take Task ID
   }
   async remove(task: Task) {
+    localStorage.setItem('isLoading', 'yes');
     const tasksList = this.tasksList$.getValue().filter((item) => item != task);
     this.tasksList$.next(tasksList);
     await this.removeOneTaskInDB(task)
@@ -49,8 +58,10 @@ export class TaskService {
         this.toastr.clear();
         this.toastr.error(errorMessage);
       });
+    localStorage.removeItem('isLoading');
   }
   async done(task: Task) {
+    localStorage.setItem('isLoading', 'yes');
     task.end = new Date().toLocaleString();
     task.isDone = true;
     const tasksList = this.tasksList$.getValue();
@@ -66,6 +77,7 @@ export class TaskService {
         this.toastr.clear();
         this.toastr.error(errorMessage);
       });
+    localStorage.removeItem('isLoading');
   }
 
   //Async functions with API Requests
@@ -94,6 +106,7 @@ export class TaskService {
     }
   }
   async getTasksFromDB() {
+    localStorage.setItem('isLoading', 'yes');
     this.toastr.info('Loading...');
     try {
       (await this.http.getTask()).subscribe((tasks) => {
@@ -101,8 +114,10 @@ export class TaskService {
         const listOfTasks: Task[] = Object.values(responseArray[0]);
         this.tasksList$.next(listOfTasks);
         this.toastr.clear();
+        localStorage.removeItem('isLoading');
       });
     } catch (err) {
+      localStorage.removeItem('isLoading');
       throw err;
     }
   }

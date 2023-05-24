@@ -27,7 +27,13 @@
           />
         </mat-form-field>
         <div>
-          <button mat-raised-button color="primary">Sign in</button>
+          <button
+            [disabled]="loginForm.invalid"
+            mat-raised-button
+            color="primary"
+          >
+            Sign in
+          </button>
           <a routerLink="/register" mat-raised-button color="accent"
             >New User?</a
           >
