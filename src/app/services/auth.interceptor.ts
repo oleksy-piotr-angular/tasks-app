@@ -8,7 +8,7 @@ import {
   HttpErrorResponse,
 } from '@angular/common/http';
 import { Observable, catchError } from 'rxjs';
-import { UserService } from '../services/user.service';
+import { UserService } from './user.service';
 import { Router } from '@angular/router';
 
 @Injectable()

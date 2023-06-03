@@ -15,7 +15,7 @@ import { SignUpComponent } from './sign-up/sign-up.component';
 import { TasksComponent } from './tasks/tasks.component';
 import { UserService } from './services/user.service';
 import { TaskService } from './services/task.service';
-import { AuthInterceptorService } from './shared/auth.interceptor';
+import { AuthInterceptorService } from './services/auth.interceptor';
 import { TodoTaskComponent } from './tasks/todo-task/todo-task.component';
 import { DoneTaskComponent } from './tasks/done-task/done-task.component';
 import { AddTaskComponent } from './tasks/add-task/add-task.component';

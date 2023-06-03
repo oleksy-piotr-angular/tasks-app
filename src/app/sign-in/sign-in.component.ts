@@ -51,6 +51,7 @@ export class SignInComponent {
           this.taskService.getTasksFromDB();
           this.router.navigate(['']);
         }
+        this.isLoading = false;
       })
       .catch((err) => {
         this.toastr.clear();

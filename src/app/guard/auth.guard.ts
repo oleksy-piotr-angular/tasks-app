@@ -13,6 +13,7 @@ import { Observable } from 'rxjs';
 @Injectable({
   providedIn: 'root',
 })
+//TODO Try to change this to Angular 15 version
 export class AuthGuard implements CanActivate {
   constructor(
     private userService: UserService,

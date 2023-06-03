@@ -4,7 +4,6 @@ import { Observable } from 'rxjs';
 import { User } from '../models/user';
 import { catchError, map, retry } from 'rxjs/operators';
 import { Task } from '../models/task';
-import { UserService } from './user.service';
 
 @Injectable()
 export class HttpService {
