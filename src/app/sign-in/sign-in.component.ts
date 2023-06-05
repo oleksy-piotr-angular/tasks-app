@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
-import { UserService } from '../services/user.service';
+import { AuthService } from '../services/auth.service';
 import { ToastrService } from 'ngx-toastr';
 import { Router } from '@angular/router';
 import { User } from '../models/user';
@@ -13,16 +13,16 @@ import { TaskService } from '../services/task.service';
 })
 export class SignInComponent {
   constructor(
-    private userService: UserService,
-    private builder: FormBuilder,
+    private authService: AuthService,
+    private fb: FormBuilder,
     private toastr: ToastrService,
     private router: Router,
     private taskService: TaskService
   ) {}
   isLoading: boolean = false;
-  loginForm = this.builder.group({
-    email: this.builder.nonNullable.control('', Validators.required),
-    password: this.builder.nonNullable.control('', Validators.required),
+  loginForm = this.fb.group({
+    email: this.fb.nonNullable.control('', Validators.required),
+    password: this.fb.nonNullable.control('', Validators.required),
   });
 
   proceedSignIn() {
@@ -36,16 +36,16 @@ export class SignInComponent {
     }
   }
   async signIn(user: User) {
-    await this.userService
+    await this.authService
       .signIn(user)
       .then((response) => {
-        this.userService.setUserData({
+        this.authService.setUserData({
           email: user.email,
           sessionToken: response.sessionToken,
         });
       })
       .then(async (response) => {
-        if (this.userService.isLoggedIn()) {
+        if (this.authService.isLoggedIn()) {
           this.toastr.clear();
           this.toastr.success('You have successfully Sign in...');
           this.taskService.getTasksFromDB();

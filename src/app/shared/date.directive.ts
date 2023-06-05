@@ -16,7 +16,8 @@ export class DateDirective {
     this.paragraph = this.renderer.createElement('p');
   }
 
-  @HostListener('mouseenter') mouseEnter(eventDate: Event): void {
+  @HostListener('mouseenter')
+  mouseEnter(eventDate: Event): void {
     this.renderer.setProperty(
       this.paragraph,
       'innerHTML',

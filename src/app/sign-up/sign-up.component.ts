@@ -6,7 +6,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { User } from '../models/user';
-import { UserService } from '../services/user.service';
+import { AuthService } from '../services/auth.service';
 import { ToastrService } from 'ngx-toastr';
 import { Router } from '@angular/router';
 @Component({
@@ -19,7 +19,7 @@ export class SignUpComponent {
   isLoading: boolean = false;
 
   constructor(
-    private userService: UserService,
+    private authService: AuthService,
     private toastr: ToastrService,
     private router: Router,
     private formBuilder: FormBuilder
@@ -88,7 +88,7 @@ export class SignUpComponent {
   }
 
   async signUp(user: User) {
-    await this.userService
+    await this.authService
       .signUp(user)
       .then(async (response) => {
         this.toastr.clear();

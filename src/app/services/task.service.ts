@@ -3,7 +3,7 @@ import { BehaviorSubject, Observable, lastValueFrom } from 'rxjs';
 import { Task } from '../models/task';
 import { HttpService } from './http.service';
 import { ToastrService } from 'ngx-toastr';
-import { UserService } from './user.service';
+import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root',
@@ -13,7 +13,7 @@ export class TaskService {
 
   constructor(
     private http: HttpService,
-    private user: UserService,
+    private user: AuthService,
     private toastr: ToastrService
   ) {
     if (user.isLoggedIn()) {
@@ -105,21 +105,21 @@ export class TaskService {
       throw err;
     }
   }
-  async getTasksFromDB() {
+  getTasksFromDB() {
     localStorage.setItem('isLoading', 'yes');
     this.toastr.info('Loading...');
-    try {
-      (await this.http.getTask()).subscribe((tasks) => {
-        const responseArray = Object.values(tasks);
-        const listOfTasks: Task[] = Object.values(responseArray[0]);
-        this.tasksList$.next(listOfTasks);
-        this.toastr.clear();
-        localStorage.removeItem('isLoading');
-      });
-    } catch (err) {
+    //try {
+    this.http.getTasks().subscribe((tasks) => {
+      const responseArray = Object.values(tasks);
+      const listOfTasks: Task[] = Object.values(responseArray[0]);
+      this.tasksList$.next(listOfTasks);
+      this.toastr.clear();
       localStorage.removeItem('isLoading');
-      throw err;
-    }
+    });
+    // } catch (err) {
+    //   localStorage.removeItem('isLoading');
+    //   throw err;
+    // }
   }
 
   clearTasksList() {

@@ -13,7 +13,7 @@ import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { ToastrModule } from 'ngx-toastr';
 import { SignUpComponent } from './sign-up/sign-up.component';
 import { TasksComponent } from './tasks/tasks.component';
-import { UserService } from './services/user.service';
+import { AuthService } from './services/auth.service';
 import { TaskService } from './services/task.service';
 import { AuthInterceptorService } from './services/auth.interceptor';
 import { TodoTaskComponent } from './tasks/todo-task/todo-task.component';
@@ -50,7 +50,7 @@ import { CheckedDirective } from './shared/checked.directive';
   ],
   providers: [
     HttpService,
-    UserService,
+    AuthService,
     TaskService,
     {
       provide: HTTP_INTERCEPTORS,

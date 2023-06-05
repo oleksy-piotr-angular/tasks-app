@@ -8,11 +8,11 @@ import { TaskService } from 'src/app/services/task.service';
   styleUrls: ['./todo-task.component.css'],
 })
 export class TodoTaskComponent {
-  tasksList: Array<Task> = [];
+  tasksList: Task[] = [];
   constructor(private tasksService: TaskService) {
     //this.tasksService.getTasksFromDB();
     this.tasksService.getTasksList$().subscribe((tasks: Task[]) => {
-      this.tasksList = tasks.filter((t) => t.isDone === false).slice();
+      this.tasksList = tasks.filter((t) => t.isDone === false);
     });
   }
   remove(task: Task) {

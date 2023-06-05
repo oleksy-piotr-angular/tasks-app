@@ -8,12 +8,12 @@ import {
   HttpErrorResponse,
 } from '@angular/common/http';
 import { Observable, catchError } from 'rxjs';
-import { UserService } from './user.service';
+import { AuthService } from './auth.service';
 import { Router } from '@angular/router';
 
 @Injectable()
 export class AuthInterceptorService implements HttpInterceptor {
-  constructor(private authService: UserService, private router: Router) {}
+  constructor(private authService: AuthService, private router: Router) {}
 
   intercept(
     request: HttpRequest<unknown>,

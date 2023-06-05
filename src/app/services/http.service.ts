@@ -10,53 +10,19 @@ export class HttpService {
   private readonly apiUrl: string = 'https://tasks-api-yg3r.onrender.com/';
   constructor(private http: HttpClient) {}
 
-  //USER requests
-  async signInRequest(user: User): Promise<Observable<User>> {
-    const endpoint = 'user/login';
-    return this.http
-      .post<User>(this.apiUrl + endpoint, {
-        email: user.email,
-        password: user.password,
-      })
-      .pipe(
-        retry(1),
-        catchError((err) => {
-          throw err;
-        }),
-        map((response) => response)
-      );
-  }
-
-  async signUpRequest(user: User): Promise<Observable<User>> {
-    const endpoint = 'user/signup';
-    const httpHeaders = new HttpHeaders();
-    return this.http
-      .post<User>(this.apiUrl + endpoint, {
-        email: user.email,
-        password: user.password,
-      })
-      .pipe(
-        retry(1),
-        catchError((err) => {
-          throw err;
-        }),
-        map((response) => response)
-      );
-  }
-
   //TASK requests
-  async getTask(): Promise<Observable<Array<Task>>> {
+  getTasks(): Observable<Task[]> {
     const endpoint = 'tasks/myTasks';
     return this.http
       .get<Array<Task>>(this.apiUrl + endpoint, {
         responseType: 'json',
       })
       .pipe(
-        retry(1),
-        catchError((err) => {
-          throw err;
-        }),
-        map((response) => response)
+        retry(1)
+        // catchError((err) => {
+        //   throw err;
+        // })
+        //map((response) => response)
       );
   }
   async saveOneTask(task: Task): Promise<Observable<Task>> {
@@ -95,6 +61,40 @@ export class HttpService {
     ];
     return this.http
       .patch<Task>(this.apiUrl + endpoint + task_ID, updateBody)
+      .pipe(
+        retry(1),
+        catchError((err) => {
+          throw err;
+        }),
+        map((response) => response)
+      );
+  }
+
+  //USER requests
+  async signInRequest(user: User): Promise<Observable<User>> {
+    const endpoint = 'user/login';
+    return this.http
+      .post<User>(this.apiUrl + endpoint, {
+        email: user.email,
+        password: user.password,
+      })
+      .pipe(
+        retry(1),
+        catchError((err) => {
+          throw err;
+        }),
+        map((response) => response)
+      );
+  }
+
+  async signUpRequest(user: User): Promise<Observable<User>> {
+    const endpoint = 'user/signup';
+    const httpHeaders = new HttpHeaders();
+    return this.http
+      .post<User>(this.apiUrl + endpoint, {
+        email: user.email,
+        password: user.password,
+      })
       .pipe(
         retry(1),
         catchError((err) => {

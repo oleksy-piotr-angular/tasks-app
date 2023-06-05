@@ -11,8 +11,7 @@ export class CheckedDirective implements OnInit {
     this.renderer.setStyle(
       li,
       'background',
-      'url(/assets/checked.png) 10px center no-repeat'
+      'url(/assets/checked.png) 10px center no-repeat rgb(195, 253, 137)'
     );
-    this.renderer.setStyle(li, 'background-color', 'c3fd89');
   }
 }

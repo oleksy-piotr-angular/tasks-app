@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { UserService } from '../services/user.service';
+import { AuthService } from '../services/auth.service';
 import { ToastrService } from 'ngx-toastr';
 import {
   ActivatedRouteSnapshot,
@@ -16,7 +16,7 @@ import { Observable } from 'rxjs';
 //TODO Try to change this to Angular 15 version
 export class AuthGuard implements CanActivate {
   constructor(
-    private userService: UserService,
+    private userService: AuthService,
     private router: Router,
     private toastr: ToastrService
   ) {}
