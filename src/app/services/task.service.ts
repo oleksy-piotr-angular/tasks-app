@@ -26,7 +26,7 @@ export class TaskService {
   }
 
   async add(task: Task) {
-    localStorage.setItem('isLoading', 'yes');
+    // localStorage.setItem('isLoading', 'yes');
     const tasksList = this.tasksList$.getValue();
     tasksList.push(task);
     this.tasksList$.next(tasksList);
@@ -44,7 +44,7 @@ export class TaskService {
     this.getTasksFromDB(); //need to reload list to Take Task ID
   }
   async remove(task: Task) {
-    localStorage.setItem('isLoading', 'yes');
+    //localStorage.setItem('isLoading', 'yes');
     const tasksList = this.tasksList$.getValue().filter((item) => item != task);
     this.tasksList$.next(tasksList);
     await this.removeOneTaskInDB(task)
@@ -58,10 +58,10 @@ export class TaskService {
         this.toastr.clear();
         this.toastr.error(errorMessage);
       });
-    localStorage.removeItem('isLoading');
+    //localStorage.removeItem('isLoading');
   }
   async done(task: Task) {
-    localStorage.setItem('isLoading', 'yes');
+    //localStorage.setItem('isLoading', 'yes');
     task.end = new Date().toLocaleString();
     task.isDone = true;
     const tasksList = this.tasksList$.getValue();
@@ -77,7 +77,7 @@ export class TaskService {
         this.toastr.clear();
         this.toastr.error(errorMessage);
       });
-    localStorage.removeItem('isLoading');
+    //localStorage.removeItem('isLoading');
   }
 
   //Async functions with API Requests
@@ -106,7 +106,7 @@ export class TaskService {
     }
   }
   getTasksFromDB() {
-    localStorage.setItem('isLoading', 'yes');
+    //localStorage.setItem('isLoading', 'yes');
     this.toastr.info('Loading...');
     //try {
     this.http.getTasks().subscribe((tasks) => {
@@ -114,7 +114,7 @@ export class TaskService {
       const listOfTasks: Task[] = Object.values(responseArray[0]);
       this.tasksList$.next(listOfTasks);
       this.toastr.clear();
-      localStorage.removeItem('isLoading');
+      //localStorage.removeItem('isLoading');
     });
     // } catch (err) {
     //   localStorage.removeItem('isLoading');

@@ -5,6 +5,7 @@ import { ToastrService } from 'ngx-toastr';
 import { Router } from '@angular/router';
 import { User } from '../models/user';
 import { TaskService } from '../services/task.service';
+import jwt_decode from 'jwt-decode';
 
 @Component({
   selector: 'app-sign-in',
@@ -35,29 +36,35 @@ export class SignInComponent {
       this.signIn(user);
     }
   }
-  async signIn(user: User) {
-    await this.authService
-      .signIn(user)
-      .then((response) => {
-        this.authService.setUserData({
-          email: user.email,
-          sessionToken: response.sessionToken,
-        });
-      })
-      .then(async (response) => {
-        if (this.authService.isLoggedIn()) {
-          this.toastr.clear();
-          this.toastr.success('You have successfully Sign in...');
-          this.taskService.getTasksFromDB();
-          this.router.navigate(['']);
-        }
-        this.isLoading = false;
-      })
-      .catch((err) => {
-        this.toastr.clear();
-        const errorMessage = err.error[Object.keys(err.error)[0]]; //extract Error Message
-        this.toastr.error(errorMessage);
-        this.isLoading = false;
-      });
+  signIn(user: User) {
+    this.authService.login(user);
+    // .subscribe((response) => {
+    //   console.log(response);
+    //   //console.log(response.sessionToken);
+    //   //console.log(jwt_decode(JSON.stringify(response.sessionToken)));
+    // });
+
+    //////////////////////////////////////////////////////////////////////////////////////////
+    // .then((response) => {
+    //   this.authService.setUserData({
+    //     email: user.email,
+    //     sessionToken: response.sessionToken,
+    //   });
+    // })
+    // .then(async (response) => {
+    //   if (this.authService.isLoggedIn()) {
+    //     this.toastr.clear();
+    //     this.toastr.success('You have successfully Sign in...');
+    //     this.taskService.getTasksFromDB();
+    //     this.router.navigate(['']);
+    //   }
+    //   this.isLoading = false;
+    // })
+    // .catch((err) => {
+    //   this.toastr.clear();
+    //   const errorMessage = err.error[Object.keys(err.error)[0]]; //extract Error Message
+    //   this.toastr.error(errorMessage);
+    //   this.isLoading = false;
+    // });
   }
 }

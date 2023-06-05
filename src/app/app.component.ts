@@ -2,6 +2,7 @@ import { Component, DoCheck } from '@angular/core';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { TaskService } from './services/task.service';
+import { AuthService } from './services/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -15,13 +16,15 @@ export class AppComponent implements DoCheck {
   constructor(
     private router: Router,
     private toastr: ToastrService,
-    private taskService: TaskService
+    private taskService: TaskService,
+    private authService: AuthService
   ) {}
 
   proceedLogOut() {
     this.taskService.clearTasksList();
-    localStorage.removeItem('email');
-    localStorage.removeItem('user_auth');
+    this.authService.logout();
+    // localStorage.removeItem('email');
+    // localStorage.removeItem('user_auth');
     this.toastr.clear();
     this.toastr.success('You have successfully logged out');
     this.router.navigate(['signin']);

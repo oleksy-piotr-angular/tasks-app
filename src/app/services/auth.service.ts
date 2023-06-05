@@ -1,71 +1,91 @@
 import { User } from '../models/user';
-import { HttpService } from './http.service';
 import { Injectable } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
-import { Subject, lastValueFrom, Observable } from 'rxjs';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { catchError, map, retry } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import jwt_decode from 'jwt-decode';
+import * as moment from 'moment';
 
 @Injectable()
 export class AuthService {
   private readonly TOKEN_NAME = 'user_auth';
   private readonly apiUrl: string = 'https://tasks-api-yg3r.onrender.com/';
-  constructor(
-    private http: HttpService,
-    private toastr: ToastrService,
-    private httpClient: HttpClient
-  ) {}
+  constructor(private toastr: ToastrService, private http: HttpClient) {}
 
-  signInRequest(user: User): Observable<User> {
-    const endpoint = 'user/login';
-    return this.httpClient
-      .post<User>(this.apiUrl + endpoint, {
-        email: user.email,
-        password: user.password,
-      })
-      .pipe(
-        retry(1),
-        catchError((err) => {
-          throw err;
-        }),
-        map((response) => response)
-      );
+  login(user: User) {
+    this.loginRequest(user).subscribe((res) => {
+      this.setSession(res);
+      console.log(res);
+      console.log(this.getExpiration());
+      console.log(this.isLoggedIn());
+    });
   }
 
-  ///////////////////////////////////////////////////////////////////////////
-  async signIn(_user: User) {
-    this.toastr.info('Please wait...');
-    try {
-      const responseData$ = await this.http.signInRequest(_user);
-      return lastValueFrom(responseData$);
-    } catch (err) {
-      throw 'Invalid Credentials';
+  logout() {
+    localStorage.removeItem(this.TOKEN_NAME);
+    localStorage.removeItem('expires_at');
+  }
+
+  public isLoggedIn() {
+    return moment().isBefore(this.getExpiration());
+  }
+
+  public isLoggedOut() {
+    return !this.isLoggedIn();
+  }
+
+  private decodeTokenData(_token: string): {
+    email: string;
+    iat: number;
+    exp: number;
+  } {
+    const decodedToken: {
+      email: string;
+      userId: string;
+      iat: number;
+      exp: number;
+    } = jwt_decode(JSON.stringify(_token));
+    return {
+      email: decodedToken.email,
+      iat: decodedToken.iat,
+      exp: decodedToken.exp,
+    };
+  }
+
+  private setSession(_response: Pick<User, 'sessionToken'>) {
+    const token: string | undefined = _response.sessionToken;
+    if (token) {
+      const decoded: {
+        email: string;
+        iat: number;
+        exp: number;
+      } = this.decodeTokenData(token);
+      const email: string = this.decodeTokenData(token).email;
+      const expiration: number = decoded.exp - decoded.iat;
+      const expiresAt = moment().add(expiration, 'second');
+      console.log('expiration: ' + expiration);
+      console.log('expiresAt' + expiresAt.toString());
+      localStorage.setItem('expires_at', JSON.stringify(expiresAt));
+      localStorage.setItem(this.TOKEN_NAME, token);
+      localStorage.setItem('email', email);
     }
+  }
+
+  getExpiration(): moment.Moment {
+    const expiration = localStorage.getItem('expires_at');
+    const expiresAt = expiration ? JSON.parse(expiration) : {};
+    return moment(expiresAt);
   }
 
   get getAuthToken(): string | null {
     return localStorage.getItem(this.TOKEN_NAME);
   }
-  setUserData(data: User) {
-    localStorage.setItem('email', data.email ? data.email : '');
-    localStorage.setItem(
-      this.TOKEN_NAME,
-      data.sessionToken ? data.sessionToken : ''
-    );
-    console.log('User auth data has been set');
-  }
 
-  isLoggedIn(): boolean {
-    return localStorage.getItem(this.TOKEN_NAME) != undefined;
-  }
-
-  async signUp(_user: User) {
-    this.toastr.info('Please wait...');
-    try {
-      const responseData$ = await this.http.signUpRequest(_user);
-      return lastValueFrom(responseData$);
-    } catch (err) {
-      throw err;
-    }
+  private loginRequest(user: User): Observable<User> {
+    const endpoint = 'user/login';
+    return this.http.post<User>(this.apiUrl + endpoint, {
+      email: user.email,
+      password: user.password,
+    });
   }
 }

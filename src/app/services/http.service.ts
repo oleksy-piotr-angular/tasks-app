@@ -4,11 +4,22 @@ import { Observable } from 'rxjs';
 import { User } from '../models/user';
 import { catchError, map, retry } from 'rxjs/operators';
 import { Task } from '../models/task';
+import { ToastrService } from 'ngx-toastr';
 
 @Injectable()
 export class HttpService {
   private readonly apiUrl: string = 'https://tasks-api-yg3r.onrender.com/';
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private toastr: ToastrService) {}
+
+  //USER SignUp request
+  signUp(_user: User): Observable<{ message: string }> {
+    this.toastr.info('Please wait...');
+    const endpoint = 'user/signup';
+    return this.http.post<{ message: string }>(this.apiUrl + endpoint, {
+      email: _user.email,
+      password: _user.password,
+    });
+  }
 
   //TASK requests
   getTasks(): Observable<Task[]> {
@@ -71,25 +82,24 @@ export class HttpService {
   }
 
   //USER requests
-  async signInRequest(user: User): Promise<Observable<User>> {
-    const endpoint = 'user/login';
-    return this.http
-      .post<User>(this.apiUrl + endpoint, {
-        email: user.email,
-        password: user.password,
-      })
-      .pipe(
-        retry(1),
-        catchError((err) => {
-          throw err;
-        }),
-        map((response) => response)
-      );
-  }
+  // async signInRequest(user: User): Promise<Observable<User>> {
+  //   const endpoint = 'user/login';
+  //   return this.http
+  //     .post<User>(this.apiUrl + endpoint, {
+  //       email: user.email,
+  //       password: user.password,
+  //     })
+  //     .pipe(
+  //       retry(1),
+  //       catchError((err) => {
+  //         throw err;
+  //       }),
+  //       map((response) => response)
+  //     );
+  // }
 
   async signUpRequest(user: User): Promise<Observable<User>> {
     const endpoint = 'user/signup';
-    const httpHeaders = new HttpHeaders();
     return this.http
       .post<User>(this.apiUrl + endpoint, {
         email: user.email,
@@ -99,8 +109,7 @@ export class HttpService {
         retry(1),
         catchError((err) => {
           throw err;
-        }),
-        map((response) => response)
+        })
       );
   }
 }

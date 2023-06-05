@@ -6,7 +6,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { User } from '../models/user';
-import { AuthService } from '../services/auth.service';
+import { HttpService } from '../services/http.service';
 import { ToastrService } from 'ngx-toastr';
 import { Router } from '@angular/router';
 @Component({
@@ -19,7 +19,7 @@ export class SignUpComponent {
   isLoading: boolean = false;
 
   constructor(
-    private authService: AuthService,
+    private http: HttpService,
     private toastr: ToastrService,
     private router: Router,
     private formBuilder: FormBuilder
@@ -83,23 +83,10 @@ export class SignUpComponent {
         email: this.reactiveForm.value.email,
         password: this.reactiveForm.value.password,
       };
-      this.signUp(user);
-    }
-  }
-
-  async signUp(user: User) {
-    await this.authService
-      .signUp(user)
-      .then(async (response) => {
-        this.toastr.clear();
-        this.toastr.success('You have successfully Sign Up...');
+      this.http.signUp(user).subscribe((response) => {
+        this.toastr.success(response.message);
         this.router.navigate(['signin']);
-      })
-      .catch((err) => {
-        const errorMessage = err.error[Object.keys(err.error)[0]]; //extract Error Message
-        this.toastr.clear();
-        this.toastr.error(errorMessage);
-        this.isLoading = false;
       });
+    }
   }
 }
