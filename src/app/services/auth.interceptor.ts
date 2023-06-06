@@ -21,8 +21,8 @@ export class AuthInterceptorService implements HttpInterceptor {
   ): Observable<HttpEvent<unknown>> {
     const token = this.authService.getAuthToken;
     if (token) {
-      /* console.log('AuthInterceptor!');
-      console.log(`Bearer ${token}`); */
+      // console.log('AuthInterceptor!');
+      // console.log(`Bearer ${token}`);
       request = request.clone({
         setHeaders: { Authorization: `Bearer ${token}` },
       });
@@ -32,7 +32,8 @@ export class AuthInterceptorService implements HttpInterceptor {
       catchError((err) => {
         console.log('AuthInterceptor Error!');
         if (err instanceof HttpErrorResponse) {
-          this.router.navigate(['']); //redirect User to Logout|?maybe JWT session time expired?
+          this.authService.logout();
+          this.router.navigate(['']);
           console.log('AuthInterceptor Error!- HttpErrorResponse');
           if (err.status === 401) {
             console.log('AuthInterceptor Error!-HTTP 401 ERROR');

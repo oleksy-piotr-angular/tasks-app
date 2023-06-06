@@ -7,8 +7,8 @@ import {
 } from '@angular/forms';
 import { User } from '../models/user';
 import { HttpService } from '../services/http.service';
-import { ToastrService } from 'ngx-toastr';
 import { Router } from '@angular/router';
+import { NotificationService } from '../services/notification.service';
 @Component({
   selector: 'app-sign-up',
   templateUrl: './sign-up.component.html',
@@ -20,7 +20,7 @@ export class SignUpComponent {
 
   constructor(
     private http: HttpService,
-    private toastr: ToastrService,
+    private notification: NotificationService,
     private router: Router,
     private formBuilder: FormBuilder
   ) {
@@ -84,7 +84,7 @@ export class SignUpComponent {
         password: this.reactiveForm.value.password,
       };
       this.http.signUp(user).subscribe((response) => {
-        this.toastr.success(response.message);
+        this.notification.showSuccess(response.message, 'INFO:');
         this.router.navigate(['signin']);
       });
     }

@@ -23,6 +23,7 @@ export class DateDirective {
       'innerHTML',
       `Date: ${this.date}`
     );
+    this.renderer.setAttribute(this.paragraph, 'class', 'date');
     this.renderer.appendChild(this.el.nativeElement, this.paragraph);
   }
   @HostListener('mouseleave')

@@ -26,6 +26,9 @@ h1 {
   display: flex;
   justify-content: center;
 }
+.mat-mdc-card {
+  border-radius: inherit;
+}
 
 @keyframes spin {
   0% {

@@ -1,11 +1,10 @@
 import { Component } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { AuthService } from '../services/auth.service';
-import { ToastrService } from 'ngx-toastr';
 import { Router } from '@angular/router';
 import { User } from '../models/user';
 import { TaskService } from '../services/task.service';
-import jwt_decode from 'jwt-decode';
+import { NotificationService } from '../services/notification.service';
 
 @Component({
   selector: 'app-sign-in',
@@ -16,7 +15,7 @@ export class SignInComponent {
   constructor(
     private authService: AuthService,
     private fb: FormBuilder,
-    private toastr: ToastrService,
+    private notification: NotificationService,
     private router: Router,
     private taskService: TaskService
   ) {}
@@ -29,42 +28,15 @@ export class SignInComponent {
   proceedSignIn() {
     this.isLoading = true;
     if (this.loginForm.valid) {
-      const user = {
+      const user: User = {
         email: this.loginForm.value.email,
         password: this.loginForm.value.password,
       };
-      this.signIn(user);
+      this.authService.login(user).subscribe((res) => {
+        console.log('proceedSignIn: ' + res.message);
+        this.taskService.getTasksFromDB();
+        this.notification.showSuccess(res.message, 'SUCCESS');
+      });
     }
-  }
-  signIn(user: User) {
-    this.authService.login(user);
-    // .subscribe((response) => {
-    //   console.log(response);
-    //   //console.log(response.sessionToken);
-    //   //console.log(jwt_decode(JSON.stringify(response.sessionToken)));
-    // });
-
-    //////////////////////////////////////////////////////////////////////////////////////////
-    // .then((response) => {
-    //   this.authService.setUserData({
-    //     email: user.email,
-    //     sessionToken: response.sessionToken,
-    //   });
-    // })
-    // .then(async (response) => {
-    //   if (this.authService.isLoggedIn()) {
-    //     this.toastr.clear();
-    //     this.toastr.success('You have successfully Sign in...');
-    //     this.taskService.getTasksFromDB();
-    //     this.router.navigate(['']);
-    //   }
-    //   this.isLoading = false;
-    // })
-    // .catch((err) => {
-    //   this.toastr.clear();
-    //   const errorMessage = err.error[Object.keys(err.error)[0]]; //extract Error Message
-    //   this.toastr.error(errorMessage);
-    //   this.isLoading = false;
-    // });
   }
 }

@@ -2,7 +2,7 @@
 <div class="toolbar" role="banner">
   <h1>Welcome in Demo Tasks App</h1>
   <div *ngIf="isMenuRequired">
-    <button [disabled]="isLoading()" (click)="proceedLogOut()">
+    <button (click)="proceedLogOut()" class="btn btn-outline-danger">
       Logout:<br />
       {{ email }}
     </button>

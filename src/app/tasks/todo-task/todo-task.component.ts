@@ -10,7 +10,6 @@ import { TaskService } from 'src/app/services/task.service';
 export class TodoTaskComponent {
   tasksList: Task[] = [];
   constructor(private tasksService: TaskService) {
-    //this.tasksService.getTasksFromDB();
     this.tasksService.getTasksList$().subscribe((tasks: Task[]) => {
       this.tasksList = tasks.filter((t) => t.isDone === false);
     });
@@ -22,6 +21,6 @@ export class TodoTaskComponent {
     this.tasksService.done(task);
   }
   getColor(): string {
-    return this.tasksList.length >= 5 ? 'red' : 'green';
+    return this.tasksList.length >= 5 ? 'red' : 'chartreuse';
   }
 }
