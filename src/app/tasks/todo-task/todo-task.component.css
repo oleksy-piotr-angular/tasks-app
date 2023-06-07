@@ -18,4 +18,5 @@ li > p.date {
   z-index: 100;
   position: absolute;
   background-color: yellow;
+  color: black;
 }

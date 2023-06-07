@@ -18,14 +18,6 @@ export class AuthService {
   ) {}
 
   public login(user: User): Observable<{ message: string }> {
-    // this.loginRequest(user).subscribe((res) => {
-    //   this.setSession(res);
-    //   console.log(res);
-    //   console.log(this.getExpiration());
-    //   console.log(this.isLoggedIn);
-    //   this.notification.showSuccess(res.message, 'SUCCESS');
-    //   this.router.navigate(['']);
-    // });
     return this.loginRequest(user).pipe(
       map((resp) => {
         console.log('1) Got data from observable: ', resp);
@@ -45,7 +37,9 @@ export class AuthService {
   }
 
   get isLoggedIn(): Boolean {
-    return moment().isBefore(this.getExpiration());
+    return this.getExpiration()
+      ? moment().isBefore(this.getExpiration())
+      : false;
   }
 
   get isLoggedOut(): Boolean {
@@ -84,6 +78,10 @@ export class AuthService {
       } = this.decodeTokenData(token);
       const email: string = this.decodeTokenData(token).email;
       const expiration: number = decoded.exp - decoded.iat;
+      setTimeout(() => {
+        this.logout();
+        this.router.navigate([]);
+      }, expiration * 1000);
       const expiresAt = moment().add(expiration, 'second');
       console.log('expiration: ' + expiration);
       console.log('expiresAt' + expiresAt.toString());
