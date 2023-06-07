@@ -1,7 +1,12 @@
 <p style="color: chartreuse">Tasks Done {{ tasksDone.length }}</p>
 <ol>
   <li appChecked *ngFor="let task of tasksDone | sortName">
-    <div *ngIf="task.end != null" appDate [date]="task.end">
+    <div
+      *ngIf="task.end != null"
+      appDate
+      [date]="task.created"
+      [end]="task.end"
+    >
       <p style="width: 15em; margin-bottom: 0">
         {{ task.name | transformTask : " - well done!" }}
       </p>
