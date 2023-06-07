@@ -30,18 +30,34 @@ export class TaskService {
   add(task: Task) {
     const tasksList = this.tasksList$.getValue();
 
-    this.http.saveOneTask(task).subscribe((res) => {
-      tasksList.push(task);
-      this.tasksList$.next(tasksList);
-      this.getTasksFromDB(); //need to reload list to Take Task ID
-      this.notification.showSuccess(res.message, 'Success:');
+    this.http.saveOneTask(task).subscribe({
+      next: (res) => {
+        tasksList.push(task);
+        this.tasksList$.next(tasksList);
+        this.getTasksFromDB(); //need to reload list to Take Task ID
+        this.notification.showSuccess(res.message, 'Success:');
+      },
+      error: (err) => {
+        this.notification.showWarning(
+          'Task cannot be saved. Please reload App and try again.',
+          'Warning'
+        );
+      },
     });
   }
   remove(task: Task) {
     const tasksList = this.tasksList$.getValue().filter((item) => item != task);
     this.tasksList$.next(tasksList);
-    this.http.removeOneTask(task).subscribe((res) => {
-      this.notification.showSuccess(res.message, 'Success:');
+    this.http.removeOneTask(task).subscribe({
+      next: (res) => {
+        this.notification.showSuccess(res.message, 'Success:');
+      },
+      error: (err) => {
+        this.notification.showWarning(
+          'Task cannot be updated. Please reload App and try again.',
+          'Warning'
+        );
+      },
     });
   }
   done(task: Task) {
@@ -49,9 +65,16 @@ export class TaskService {
     task.isDone = true;
     const tasksList = this.tasksList$.getValue();
     this.tasksList$.next(tasksList);
-    this.http.updateOneTaskToDone(task).subscribe((res) => {
-      console.log(res);
-      this.notification.showSuccess(res.message, 'Success:');
+    this.http.updateOneTaskToDone(task).subscribe({
+      next: (res) => {
+        this.notification.showSuccess(res.message, 'Success:');
+      },
+      error: (err) => {
+        this.notification.showWarning(
+          'Task cannot be updated. Please reload App and try again.',
+          'Warning'
+        );
+      },
     });
   }
   getTasksFromDB() {

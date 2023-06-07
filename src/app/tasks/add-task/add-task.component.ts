@@ -16,7 +16,10 @@ export class AddTaskComponent {
   ) {}
   add() {
     if (this.newTask) {
-      this.notification.showInfo('Adding a Task... Please wait', 'INFO:');
+      this.notification.showInfo(
+        'The task is going to be add... Please wait',
+        'INFO:'
+      );
       const task: Task = {
         name: this.newTask,
         created: new Date().toLocaleString(),
