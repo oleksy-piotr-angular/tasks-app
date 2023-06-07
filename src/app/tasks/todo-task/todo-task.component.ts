@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { Task } from 'src/app/models/task';
+import { NotificationService } from 'src/app/services/notification.service';
 import { TaskService } from 'src/app/services/task.service';
 
 @Component({
@@ -9,15 +10,26 @@ import { TaskService } from 'src/app/services/task.service';
 })
 export class TodoTaskComponent {
   tasksList: Task[] = [];
-  constructor(private tasksService: TaskService) {
+  constructor(
+    private tasksService: TaskService,
+    private notification: NotificationService
+  ) {
     this.tasksService.getTasksList$().subscribe((tasks: Task[]) => {
       this.tasksList = tasks.filter((t) => t.isDone === false);
     });
   }
   remove(task: Task) {
+    this.notification.showInfo(
+      'Task will be Removed from database... Please wait',
+      'INFO:'
+    );
     this.tasksService.remove(task);
   }
   done(task: Task) {
+    this.notification.showInfo(
+      'Task will be Updated in database... Please wait',
+      'INFO:'
+    );
     this.tasksService.done(task);
   }
   getColor(): string {

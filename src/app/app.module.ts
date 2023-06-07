@@ -46,7 +46,7 @@ import { CheckedDirective } from './shared/checked.directive';
     ReactiveFormsModule,
     HttpClientModule,
     ToastrModule.forRoot({
-      maxOpened: 1,
+      maxOpened: 3,
       preventDuplicates: true,
       autoDismiss: true,
     }),

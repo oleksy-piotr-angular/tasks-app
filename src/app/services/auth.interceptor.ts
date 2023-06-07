@@ -10,10 +10,15 @@ import {
 import { Observable, catchError } from 'rxjs';
 import { AuthService } from './auth.service';
 import { Router } from '@angular/router';
+import { NotificationService } from './notification.service';
 
 @Injectable()
 export class AuthInterceptorService implements HttpInterceptor {
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    private notification: NotificationService
+  ) {}
 
   intercept(
     request: HttpRequest<unknown>,
@@ -28,13 +33,16 @@ export class AuthInterceptorService implements HttpInterceptor {
         catchError((err) => {
           console.log('AuthInterceptor Error!');
           if (err instanceof HttpErrorResponse) {
-            this.authService.logout();
-            this.router.navigate(['']);
             console.log('AuthInterceptor Error!- HttpErrorResponse');
             if (err.status === 401) {
               console.log('AuthInterceptor Error!-HTTP 401 ERROR');
             }
           }
+          this.authService.logout();
+          this.notification.showError(
+            'Authorization  Error! Try to Log Out and Sign In again.',
+            'ERROR:'
+          );
           throw err;
         })
       );
