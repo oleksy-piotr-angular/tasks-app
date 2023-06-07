@@ -83,9 +83,16 @@ export class SignUpComponent {
         email: this.reactiveForm.value.email,
         password: this.reactiveForm.value.password,
       };
-      this.http.signUp(user).subscribe((response) => {
-        this.notification.showSuccess(response.message, 'INFO:');
-        this.router.navigate(['signin']);
+      this.http.signUp(user).subscribe({
+        next: (response) => {
+          this.notification.showSuccess(response.message, 'INFO:');
+          this.router.navigate(['signin']);
+        },
+        error: (err) => {
+          this.notification.showError(err.error.message, 'ERROR:');
+          this.isLoading = false;
+          this.router.navigate(['register']);
+        },
       });
     }
   }

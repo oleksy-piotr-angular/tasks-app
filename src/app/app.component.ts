@@ -27,7 +27,7 @@ export class AppComponent {
           this.isMenuRequired = false;
         } else {
           this.email = localStorage.getItem('email');
-          //this.expirationTime = this.authService.getSessionTime;
+          this.expirationTime = this.authService.getSessionTime;
           this.isMenuRequired = true;
         }
       }

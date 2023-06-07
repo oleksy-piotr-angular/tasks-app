@@ -32,10 +32,17 @@ export class SignInComponent {
         email: this.loginForm.value.email,
         password: this.loginForm.value.password,
       };
-      this.authService.login(user).subscribe((res) => {
-        console.log('proceedSignIn: ' + res.message);
-        this.taskService.getTasksFromDB();
-        this.notification.showSuccess(res.message, 'SUCCESS');
+      this.authService.login(user).subscribe({
+        next: (res) => {
+          console.log('proceedSignIn: ' + res.message);
+          this.taskService.getTasksFromDB();
+          this.notification.showSuccess(res.message, 'SUCCESS');
+          this.isLoading = false;
+        },
+        error: (err) => {
+          this.notification.showError(err.error.message, 'ERROR:');
+          this.isLoading = false;
+        },
       });
     }
   }

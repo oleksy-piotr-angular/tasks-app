@@ -50,6 +50,10 @@ export class AuthService {
     return localStorage.getItem(this.TOKEN_NAME);
   }
 
+  get getSessionTime(): string {
+    return this.getExpiration().format('YYYY-MM-DD HH:mm:ss');
+  }
+
   private decodeTokenData(_token: string): {
     email: string;
     iat: number;

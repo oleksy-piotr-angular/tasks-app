@@ -10,12 +10,8 @@ export const authGuard = () => {
   if (authService.isLoggedIn) {
     return true;
   } else {
-    notification.showInfo(
-      'If you want to check App, please Sign in...',
-      'NFO:'
-    );
     router.navigate(['signin']);
-    console.log('If you want to check App, please Sign in...');
+    console.log('authGuard: not logged In');
     return false;
   }
 };

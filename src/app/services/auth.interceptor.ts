@@ -21,26 +21,25 @@ export class AuthInterceptorService implements HttpInterceptor {
   ): Observable<HttpEvent<unknown>> {
     const token = this.authService.getAuthToken;
     if (token) {
-      // console.log('AuthInterceptor!');
-      // console.log(`Bearer ${token}`);
       request = request.clone({
         setHeaders: { Authorization: `Bearer ${token}` },
       });
-    }
-
-    return next.handle(request).pipe(
-      catchError((err) => {
-        console.log('AuthInterceptor Error!');
-        if (err instanceof HttpErrorResponse) {
-          this.authService.logout();
-          this.router.navigate(['']);
-          console.log('AuthInterceptor Error!- HttpErrorResponse');
-          if (err.status === 401) {
-            console.log('AuthInterceptor Error!-HTTP 401 ERROR');
+      return next.handle(request).pipe(
+        catchError((err) => {
+          console.log('AuthInterceptor Error!');
+          if (err instanceof HttpErrorResponse) {
+            this.authService.logout();
+            this.router.navigate(['']);
+            console.log('AuthInterceptor Error!- HttpErrorResponse');
+            if (err.status === 401) {
+              console.log('AuthInterceptor Error!-HTTP 401 ERROR');
+            }
           }
-        }
-        throw err;
-      })
-    );
+          throw err;
+        })
+      );
+    } else {
+      return next.handle(request);
+    }
   }
 }

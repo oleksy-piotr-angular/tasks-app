@@ -55,14 +55,22 @@ export class TaskService {
     });
   }
   getTasksFromDB() {
-    this.http.getTasks().subscribe((tasks) => {
-      const responseArray = Object.values(tasks);
-      const listOfTasks: Task[] = Object.values(responseArray[0]);
-      this.tasksList$.next(listOfTasks);
-      this.notification.showSuccess(
-        'Tasks has been Loaded from DB',
-        'SUCCESS: '
-      );
+    this.http.getTasks().subscribe({
+      next: (tasks) => {
+        const responseArray = Object.values(tasks);
+        const listOfTasks: Task[] = Object.values(responseArray[0]);
+        this.tasksList$.next(listOfTasks);
+        this.notification.showSuccess(
+          'Tasks has been reloaded from DB',
+          'SUCCESS: '
+        );
+      },
+      error: (err) => {
+        this.notification.showSuccess(
+          'Tasks from DB cannot be reloaded',
+          'ERROR: '
+        );
+      },
     });
   }
 
