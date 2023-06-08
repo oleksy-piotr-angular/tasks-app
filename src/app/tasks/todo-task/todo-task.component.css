@@ -14,7 +14,7 @@ li > p > span {
 }
 
 li > p.date {
-  /* to not move whole element we show Data info above it */
+  /* to not move <li> elements we show Data info above it */
   z-index: 100;
   position: absolute;
   background-color: yellow;

@@ -20,14 +20,14 @@ export class TodoTaskComponent {
   }
   remove(task: Task) {
     this.notification.showInfo(
-      'The task is going to be removed... Please wait',
+      'The task is going to be removed from DataBase... Please wait',
       'INFO:'
     );
     this.tasksService.remove(task);
   }
   done(task: Task) {
     this.notification.showInfo(
-      'The task is going to be updated... Please wait',
+      'The task is going to be updated in DataBase... Please wait',
       'INFO:'
     );
     this.tasksService.done(task);

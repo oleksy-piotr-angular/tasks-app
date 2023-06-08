@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, lastValueFrom } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { Task } from '../models/task';
 import { HttpService } from './http.service';
 import { NotificationService } from './notification.service';
@@ -16,26 +16,24 @@ export class TaskService {
     private authService: AuthService,
     private notification: NotificationService
   ) {
-    if (authService.isLoggedIn) {
+    if (this.authService.isLoggedIn) {
       this.getTasksFromDB();
-    } else {
-      console.log('TaskService: user is not logged In');
     }
   }
 
-  getTasksList$(): Observable<Array<Task>> {
+  public getTasksList$(): Observable<Array<Task>> {
     return this.tasksList$.asObservable();
   }
 
-  add(task: Task) {
+  public add(task: Task) {
     const tasksList = this.tasksList$.getValue();
 
     this.http.saveOneTask(task).subscribe({
       next: (res) => {
+        this.notification.showSuccess(res.message, 'Success:');
         tasksList.push(task);
         this.tasksList$.next(tasksList);
         this.getTasksFromDB(); //need to reload list to Take Task ID
-        this.notification.showSuccess(res.message, 'Success:');
       },
       error: (err) => {
         this.notification.showWarning(
@@ -45,29 +43,31 @@ export class TaskService {
       },
     });
   }
-  remove(task: Task) {
-    const tasksList = this.tasksList$.getValue().filter((item) => item != task);
-    this.tasksList$.next(tasksList);
+  public remove(task: Task) {
     this.http.removeOneTask(task).subscribe({
       next: (res) => {
         this.notification.showSuccess(res.message, 'Success:');
+        const tasksList = this.tasksList$
+          .getValue()
+          .filter((item) => item != task);
+        this.tasksList$.next(tasksList);
       },
       error: (err) => {
         this.notification.showWarning(
-          'Task cannot be updated. Please reload App and try again.',
+          'Task cannot be updated in DB. Please reload App and try again.',
           'Warning'
         );
       },
     });
   }
-  done(task: Task) {
+  public done(task: Task) {
     task.end = new Date().toLocaleString();
     task.isDone = true;
-    const tasksList = this.tasksList$.getValue();
-    this.tasksList$.next(tasksList);
     this.http.updateOneTaskToDone(task).subscribe({
       next: (res) => {
         this.notification.showSuccess(res.message, 'Success:');
+        const tasksList = this.tasksList$.getValue();
+        this.tasksList$.next(tasksList);
       },
       error: (err) => {
         this.notification.showWarning(
@@ -77,7 +77,7 @@ export class TaskService {
       },
     });
   }
-  getTasksFromDB() {
+  public getTasksFromDB() {
     this.http.getTasks().subscribe({
       next: (tasks) => {
         const responseArray = Object.values(tasks);
@@ -97,7 +97,7 @@ export class TaskService {
     });
   }
 
-  clearTasksList() {
+  public clearTasksList() {
     this.tasksList$.next([]);
   }
 }

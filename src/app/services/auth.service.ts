@@ -1,6 +1,5 @@
 import { User } from '../models/user';
 import { Injectable } from '@angular/core';
-import { NotificationService } from './notification.service';
 import { Observable, map } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
@@ -11,19 +10,12 @@ import * as moment from 'moment';
 export class AuthService {
   private readonly TOKEN_NAME = 'user_auth';
   private readonly apiUrl: string = 'https://tasks-api-yg3r.onrender.com/';
-  constructor(
-    private notification: NotificationService,
-    private http: HttpClient,
-    private router: Router
-  ) {}
+  constructor(private http: HttpClient, private router: Router) {}
 
   public login(user: User): Observable<{ message: string }> {
     return this.loginRequest(user).pipe(
       map((resp) => {
-        console.log('1) Got data from observable: ', resp);
         this.setSession(resp);
-        console.log(this.getExpiration());
-        console.log(this.isLoggedIn);
         this.router.navigate(['']);
         return resp;
       })
@@ -52,6 +44,10 @@ export class AuthService {
 
   get getSessionTime(): string {
     return this.getExpiration().format('YYYY-MM-DD HH:mm:ss');
+  }
+
+  get getEmail(): string | null {
+    return localStorage.getItem('email');
   }
 
   private decodeTokenData(_token: string): {
@@ -83,12 +79,11 @@ export class AuthService {
       const email: string = this.decodeTokenData(token).email;
       const expiration: number = decoded.exp - decoded.iat;
       setTimeout(() => {
+        //logout when Session will end for account
         this.logout();
-        this.router.navigate([]);
+        this.router.navigate(['signin']);
       }, expiration * 1000);
       const expiresAt = moment().add(expiration, 'second');
-      console.log('expiration: ' + expiration);
-      console.log('expiresAt' + expiresAt.toString());
       localStorage.setItem('expires_at', JSON.stringify(expiresAt));
       localStorage.setItem(this.TOKEN_NAME, token);
       localStorage.setItem('email', email);

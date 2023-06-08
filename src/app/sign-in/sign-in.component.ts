@@ -1,7 +1,11 @@
 import { Component } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  Validators,
+} from '@angular/forms';
 import { AuthService } from '../services/auth.service';
-import { Router } from '@angular/router';
 import { User } from '../models/user';
 import { TaskService } from '../services/task.service';
 import { NotificationService } from '../services/notification.service';
@@ -12,29 +16,34 @@ import { NotificationService } from '../services/notification.service';
   styleUrls: ['./sign-in.component.css'],
 })
 export class SignInComponent {
+  isLoading: boolean = false;
+  signInForm: FormGroup<{
+    email: FormControl<string>;
+    password: FormControl<string>;
+  }>;
+
   constructor(
     private authService: AuthService,
     private fb: FormBuilder,
     private notification: NotificationService,
-    private router: Router,
     private taskService: TaskService
-  ) {}
-  isLoading: boolean = false;
-  loginForm = this.fb.group({
-    email: this.fb.nonNullable.control('', Validators.required),
-    password: this.fb.nonNullable.control('', Validators.required),
-  });
+  ) {
+    this.signInForm = this.fb.group({
+      email: this.fb.nonNullable.control('', Validators.required),
+      password: this.fb.nonNullable.control('', Validators.required),
+    });
+  }
 
   proceedSignIn() {
     this.isLoading = true;
-    if (this.loginForm.valid) {
+    this.authService.logout();
+    if (this.signInForm.valid) {
       const user: User = {
-        email: this.loginForm.value.email,
-        password: this.loginForm.value.password,
+        email: this.signInForm.value.email,
+        password: this.signInForm.value.password,
       };
       this.authService.login(user).subscribe({
         next: (res) => {
-          console.log('proceedSignIn: ' + res.message);
           this.taskService.getTasksFromDB();
           this.notification.showSuccess(res.message, 'SUCCESS');
           this.isLoading = false;

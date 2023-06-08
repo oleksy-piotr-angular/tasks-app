@@ -17,7 +17,7 @@ export class AddTaskComponent {
   add() {
     if (this.newTask) {
       this.notification.showInfo(
-        'The task is going to be add... Please wait',
+        'The task is going to be add to DataBase... Please wait',
         'INFO:'
       );
       const task: Task = {

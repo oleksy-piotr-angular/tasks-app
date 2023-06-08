@@ -4,8 +4,8 @@ import {
   FormGroup,
   FormControl,
   Validators,
+  AbstractControlOptions,
 } from '@angular/forms';
-import { User } from '../models/user';
 import { HttpService } from '../services/http.service';
 import { Router } from '@angular/router';
 import { NotificationService } from '../services/notification.service';
@@ -15,25 +15,29 @@ import { NotificationService } from '../services/notification.service';
   styleUrls: ['./sign-up.component.css'],
 })
 export class SignUpComponent {
-  reactiveForm!: FormGroup;
+  signUpForm: FormGroup<{
+    email: FormControl<string>;
+    password: FormControl<string>;
+    confirmPassword: FormControl<string>;
+  }>;
   isLoading: boolean = false;
 
   constructor(
     private http: HttpService,
     private notification: NotificationService,
     private router: Router,
-    private formBuilder: FormBuilder
+    private fb: FormBuilder
   ) {
-    this.reactiveForm = this.formBuilder.group(
+    this.signUpForm = this.fb.group(
       {
-        email: new FormControl(
+        email: this.fb.nonNullable.control(
           '',
           Validators.compose([
             Validators.pattern('[a-z0-9._%+-]+@[a-z0-9.-]+.[a-z]{2,3}'),
             Validators.required,
           ])
         ),
-        password: new FormControl(
+        password: this.fb.nonNullable.control(
           '',
           Validators.compose([
             Validators.required,
@@ -42,19 +46,18 @@ export class SignUpComponent {
             ),
           ])
         ),
-        confirmPassword: new FormControl(
+        confirmPassword: this.fb.nonNullable.control(
           '',
           Validators.compose([Validators.required])
         ),
       },
       {
         validators: this.mustMatch('password', 'confirmPassword'),
-      }
+      } as AbstractControlOptions
     );
   }
-
   get getFormControl() {
-    return this.reactiveForm.controls;
+    return this.signUpForm.controls;
   }
 
   mustMatch(password: string, confirmPassword: string) {
@@ -78,10 +81,10 @@ export class SignUpComponent {
 
   proceedSignUp() {
     this.isLoading = true;
-    if (this.reactiveForm.valid) {
+    if (this.signUpForm.valid) {
       const user = {
-        email: this.reactiveForm.value.email,
-        password: this.reactiveForm.value.password,
+        email: this.signUpForm.value.email,
+        password: this.signUpForm.value.password,
       };
       this.http.signUp(user).subscribe({
         next: (response) => {

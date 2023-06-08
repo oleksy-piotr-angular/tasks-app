@@ -1,4 +1,4 @@
-import { Component, DoCheck } from '@angular/core';
+import { Component } from '@angular/core';
 import { Router, Event, NavigationError, NavigationEnd } from '@angular/router';
 import { TaskService } from './services/task.service';
 import { AuthService } from './services/auth.service';
@@ -10,7 +10,7 @@ import { NotificationService } from './services/notification.service';
   styleUrls: ['./app.component.css'],
 })
 export class AppComponent {
-  title = 'tasks-app';
+  title = 'Welcome in Demo Tasks App';
   email: string | null = '';
   expirationTime: string = '';
   isMenuRequired: boolean = false;
@@ -26,13 +26,13 @@ export class AppComponent {
         if (currentURL == '/signin' || currentURL == '/register') {
           this.isMenuRequired = false;
         } else {
-          this.email = localStorage.getItem('email');
+          this.email = this.authService.getEmail;
           this.expirationTime = this.authService.getSessionTime;
           this.isMenuRequired = true;
         }
       }
       if (event instanceof NavigationError) {
-        router.navigate(['']);
+        router.navigate(['signin']);
         notification.showError(event.error, 'Error: ');
       }
     });
