@@ -4,6 +4,7 @@ import { Task } from '../models/task';
 import { HttpService } from './http.service';
 import { NotificationService } from './notification.service';
 import { AuthService } from './auth.service';
+import { ResponseMessage } from '../models/types';
 
 @Injectable({
   providedIn: 'root',
@@ -16,7 +17,7 @@ export class TaskService {
     private authService: AuthService,
     private notification: NotificationService
   ) {
-    if (this.authService.isLoggedIn) {
+    if (this.authService.isSignedIn) {
       this.getTasksFromDB();
     }
   }
@@ -25,14 +26,12 @@ export class TaskService {
     return this.tasksList$.asObservable();
   }
 
-  public add(task: Task) {
-    const tasksList = this.tasksList$.getValue();
+  public add(_task: Pick<Task, 'created' | 'isDone' | 'name'>) {
+    const tasksList: Task[] = this.tasksList$.getValue();
 
-    this.http.saveOneTask(task).subscribe({
+    this.http.saveOneTask(_task).subscribe({
       next: (res) => {
         this.notification.showSuccess(res.message, 'Success:');
-        tasksList.push(task);
-        this.tasksList$.next(tasksList);
         this.getTasksFromDB(); //need to reload list to Take Task ID
       },
       error: (err) => {

@@ -5,6 +5,7 @@ import {
   HttpEvent,
   HttpInterceptor,
   HttpErrorResponse,
+  HttpHeaderResponse,
 } from '@angular/common/http';
 import { Observable, catchError } from 'rxjs';
 import { AuthService } from './auth.service';
@@ -20,7 +21,7 @@ export class AuthInterceptorService implements HttpInterceptor {
   intercept(
     request: HttpRequest<unknown>,
     next: HttpHandler
-  ): Observable<HttpEvent<unknown>> {
+  ): Observable<HttpEvent<HttpHeaderResponse>> {
     const token = this.authService.getAuthToken;
     if (token) {
       request = request.clone({
@@ -35,7 +36,7 @@ export class AuthInterceptorService implements HttpInterceptor {
               console.log('AuthInterceptor Error!-HTTP 401 ERROR');
             }
           }
-          this.authService.logout();
+          this.authService.signOut();
           this.notification.showError(
             'Authorization  Error! Try to Log Out and Sign In again.',
             'ERROR:'

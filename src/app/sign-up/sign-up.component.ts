@@ -9,6 +9,8 @@ import {
 import { HttpService } from '../services/http.service';
 import { Router } from '@angular/router';
 import { NotificationService } from '../services/notification.service';
+import { User } from '../models/user';
+import { ResponseMessage, ErrorMessage } from '../models/types';
 @Component({
   selector: 'app-sign-up',
   templateUrl: './sign-up.component.html',
@@ -82,16 +84,18 @@ export class SignUpComponent {
   proceedSignUp() {
     this.isLoading = true;
     if (this.signUpForm.valid) {
-      const user = {
-        email: this.signUpForm.value.email,
-        password: this.signUpForm.value.password,
+      const _user: User = {
+        email: this.signUpForm.value.email ? this.signUpForm.value.email : '',
+        password: this.signUpForm.value.password
+          ? this.signUpForm.value.password
+          : '',
       };
-      this.http.signUp(user).subscribe({
-        next: (response) => {
+      this.http.signUp(_user).subscribe({
+        next: (response: ResponseMessage) => {
           this.notification.showSuccess(response.message, 'INFO:');
           this.router.navigate(['signin']);
         },
-        error: (err) => {
+        error: (err: ErrorMessage) => {
           this.notification.showError(err.error.message, 'ERROR:');
           this.isLoading = false;
           this.router.navigate(['register']);

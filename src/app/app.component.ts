@@ -40,7 +40,7 @@ export class AppComponent {
 
   proceedLogOut() {
     this.taskService.clearTasksList();
-    this.authService.logout();
+    this.authService.signOut();
     this.notification.showSuccess(
       'You have successfully logged out',
       'Success:'

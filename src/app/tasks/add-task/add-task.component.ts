@@ -20,7 +20,7 @@ export class AddTaskComponent {
         'The task is going to be add to DataBase... Please wait',
         'INFO:'
       );
-      const task: Task = {
+      const task: Pick<Task, 'name' | 'created' | 'isDone'> = {
         name: this.newTask,
         created: new Date().toLocaleString(),
         isDone: false,

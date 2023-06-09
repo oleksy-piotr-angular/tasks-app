@@ -1,19 +1,21 @@
-import { User } from '../models/user';
+import { User, SignedUser } from '../models/user';
 import { Injectable } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { ResponseMessage, SessionTime, SignInResponse } from '../models/types';
 import jwt_decode from 'jwt-decode';
 import * as moment from 'moment';
+import { SessionToken } from '../models/types';
 
 @Injectable()
 export class AuthService {
-  private readonly TOKEN_NAME = 'user_auth';
+  private readonly TOKEN_NAME: string = 'user_auth';
   private readonly apiUrl: string = 'https://tasks-api-yg3r.onrender.com/';
   constructor(private http: HttpClient, private router: Router) {}
 
-  public login(user: User): Observable<{ message: string }> {
-    return this.loginRequest(user).pipe(
+  public signIn(_user: User): Observable<ResponseMessage> {
+    return this.signInRequest(_user).pipe(
       map((resp) => {
         this.setSession(resp);
         this.router.navigate(['']);
@@ -22,27 +24,23 @@ export class AuthService {
     );
   }
 
-  public logout() {
+  public signOut() {
     localStorage.removeItem(this.TOKEN_NAME);
     localStorage.removeItem('expires_at');
     localStorage.removeItem('email');
   }
 
-  get isLoggedIn(): Boolean {
+  get isSignedIn(): Boolean {
     return this.getExpiration()
       ? moment().isBefore(this.getExpiration())
       : false;
   }
 
-  get isLoggedOut(): Boolean {
-    return !this.isLoggedIn;
-  }
-
-  get getAuthToken(): string | null {
+  get getAuthToken(): SessionToken | null {
     return localStorage.getItem(this.TOKEN_NAME);
   }
 
-  get getSessionTime(): string {
+  get getSessionTime(): SessionTime {
     return this.getExpiration().format('YYYY-MM-DD HH:mm:ss');
   }
 
@@ -50,7 +48,7 @@ export class AuthService {
     return localStorage.getItem('email');
   }
 
-  private decodeTokenData(_token: string): {
+  private decodeTokenData(_token: SessionToken): {
     email: string;
     iat: number;
     exp: number;
@@ -68,7 +66,7 @@ export class AuthService {
     };
   }
 
-  private setSession(_response: Pick<User, 'sessionToken'>) {
+  private setSession(_response: Pick<SignedUser, 'sessionToken'>) {
     const token: string | undefined = _response.sessionToken;
     if (token) {
       const decoded: {
@@ -79,12 +77,14 @@ export class AuthService {
       const email: string = this.decodeTokenData(token).email;
       const expiration: number = decoded.exp - decoded.iat;
       setTimeout(() => {
-        //logout when Session will end for account
-        this.logout();
+        //sign out when Session will end for an account
+        this.signOut();
         this.router.navigate(['signin']);
       }, expiration * 1000);
-      const expiresAt = moment().add(expiration, 'second');
-      localStorage.setItem('expires_at', JSON.stringify(expiresAt));
+      localStorage.setItem(
+        'expires_at',
+        JSON.stringify(moment().add(expiration, 'second'))
+      );
       localStorage.setItem(this.TOKEN_NAME, token);
       localStorage.setItem('email', email);
     }
@@ -96,16 +96,11 @@ export class AuthService {
     return moment(expiresAt);
   }
 
-  private loginRequest(
-    user: User
-  ): Observable<{ message: string; sessionToken: string }> {
+  private signInRequest(_user: User): Observable<SignInResponse> {
     const endpoint = 'user/login';
-    return this.http.post<{ message: string; sessionToken: string }>(
-      this.apiUrl + endpoint,
-      {
-        email: user.email,
-        password: user.password,
-      }
-    );
+    return this.http.post<SignInResponse>(this.apiUrl + endpoint, {
+      email: _user.email,
+      password: _user.password,
+    });
   }
 }

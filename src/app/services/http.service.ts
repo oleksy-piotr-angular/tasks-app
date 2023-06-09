@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { User } from '../models/user';
 import { Task } from '../models/task';
 import { NotificationService } from './notification.service';
+import { ResponseMessage } from '../models/types';
 
 @Injectable()
 export class HttpService {
@@ -14,10 +15,10 @@ export class HttpService {
   ) {}
 
   //USER SignUp request
-  public signUp(_user: User): Observable<{ message: string }> {
+  public signUp(_user: User): Observable<ResponseMessage> {
     this.notification.showInfo('Please wait...', 'INFO:');
     const endpoint = 'user/signup';
-    return this.http.post<{ message: string }>(this.apiUrl + endpoint, {
+    return this.http.post<ResponseMessage>(this.apiUrl + endpoint, {
       email: _user.email,
       password: _user.password,
     });
@@ -26,22 +27,24 @@ export class HttpService {
   //TASK requests
   public getTasks(): Observable<Task[]> {
     const endpoint = 'tasks/myTasks';
-    return this.http.get<Array<Task>>(this.apiUrl + endpoint, {
+    return this.http.get<Task[]>(this.apiUrl + endpoint, {
       responseType: 'json',
     });
   }
-  public saveOneTask(task: Task): Observable<{ message: string }> {
+  public saveOneTask(
+    task: Pick<Task, 'name' | 'created' | 'isDone'>
+  ): Observable<ResponseMessage> {
     const endpoint = 'tasks/create';
-    return this.http.post<{ message: string }>(this.apiUrl + endpoint, task);
+    return this.http.post<ResponseMessage>(this.apiUrl + endpoint, task);
   }
-  public removeOneTask(task: Task): Observable<{ message: string }> {
+  public removeOneTask(task: Pick<Task, '_id'>): Observable<ResponseMessage> {
     const task_ID = task._id;
     const endpoint = 'tasks/removeTask/';
-    return this.http.delete<{ message: string }>(
-      this.apiUrl + endpoint + task_ID
-    );
+    return this.http.delete<ResponseMessage>(this.apiUrl + endpoint + task_ID);
   }
-  public updateOneTaskToDone(task: Task): Observable<{ message: string }> {
+  public updateOneTaskToDone(
+    task: Pick<Task, '_id' | 'end'>
+  ): Observable<ResponseMessage> {
     const endpoint = 'tasks/updateTask/';
     const task_ID = task._id;
     const updateBody = [
@@ -54,7 +57,7 @@ export class HttpService {
         value: task.end,
       },
     ];
-    return this.http.patch<{ message: string }>(
+    return this.http.patch<ResponseMessage>(
       this.apiUrl + endpoint + task_ID,
       updateBody
     );

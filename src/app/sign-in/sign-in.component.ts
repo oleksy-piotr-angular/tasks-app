@@ -36,13 +36,15 @@ export class SignInComponent {
 
   proceedSignIn() {
     this.isLoading = true;
-    this.authService.logout();
+    this.authService.signOut();
     if (this.signInForm.valid) {
       const user: User = {
-        email: this.signInForm.value.email,
-        password: this.signInForm.value.password,
+        email: this.signInForm.value.email ? this.signInForm.value.email : '',
+        password: this.signInForm.value.password
+          ? this.signInForm.value.password
+          : '',
       };
-      this.authService.login(user).subscribe({
+      this.authService.signIn(user).subscribe({
         next: (res) => {
           this.taskService.getTasksFromDB();
           this.notification.showSuccess(res.message, 'SUCCESS');
