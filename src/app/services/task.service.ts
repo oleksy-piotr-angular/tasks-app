@@ -4,13 +4,13 @@ import { Task } from '../models/task';
 import { HttpService } from './http.service';
 import { NotificationService } from './notification.service';
 import { AuthService } from './auth.service';
-import { ResponseMessage } from '../models/types';
+import { ResponseMessage, TasksResponse } from '../models/types';
 
 @Injectable({
   providedIn: 'root',
 })
 export class TaskService {
-  private tasksList$ = new BehaviorSubject<Array<Task>>([]);
+  private tasksList$ = new BehaviorSubject<Task[]>([]);
 
   constructor(
     private http: HttpService,
@@ -22,68 +22,67 @@ export class TaskService {
     }
   }
 
-  public getTasksList$(): Observable<Array<Task>> {
+  public getTasksList$(): Observable<Task[]> {
     return this.tasksList$.asObservable();
   }
 
-  public add(_task: Pick<Task, 'created' | 'isDone' | 'name'>) {
-    const tasksList: Task[] = this.tasksList$.getValue();
-
+  public add(_task: Pick<Task, 'created' | 'isDone' | 'name'>): void {
     this.http.saveOneTask(_task).subscribe({
-      next: (res) => {
-        this.notification.showSuccess(res.message, 'Success:');
-        this.getTasksFromDB(); //need to reload list to Take Task ID
+      next: (res: ResponseMessage) => {
+        this.notification.showSuccess(res.message + ' in DataBase', 'Success:');
+        this.getTasksFromDB(); //need to reload list to Take a new Task ID from Mongo DB
       },
       error: (err) => {
         this.notification.showWarning(
-          'Task cannot be saved. Please reload App and try again.',
+          'The Task cannot be saved. Please reload App and try again.',
           'Warning'
         );
       },
     });
   }
-  public remove(task: Task) {
-    this.http.removeOneTask(task).subscribe({
-      next: (res) => {
-        this.notification.showSuccess(res.message, 'Success:');
+  public remove(_task: Pick<Task, '_id'>): void {
+    this.http.removeOneTask(_task).subscribe({
+      next: (res: ResponseMessage) => {
+        this.notification.showSuccess(
+          res.message + ' from DataBase',
+          'Success:'
+        );
         const tasksList = this.tasksList$
           .getValue()
-          .filter((item) => item != task);
+          .filter((item) => item != _task);
         this.tasksList$.next(tasksList);
       },
       error: (err) => {
         this.notification.showWarning(
-          'Task cannot be updated in DB. Please reload App and try again.',
+          'The Task cannot be updated in DB. Please reload App and try again.',
           'Warning'
         );
       },
     });
   }
-  public done(task: Task) {
-    task.end = new Date().toLocaleString();
-    task.isDone = true;
-    this.http.updateOneTaskToDone(task).subscribe({
-      next: (res) => {
-        this.notification.showSuccess(res.message, 'Success:');
+  public done(_task: Pick<Task, '_id' | 'end' | 'isDone'>): void {
+    _task.end = new Date().toLocaleString();
+    _task.isDone = true;
+    this.http.updateOneTaskToDone(_task).subscribe({
+      next: (res: ResponseMessage) => {
+        this.notification.showSuccess(res.message + ' in DataBase', 'Success:');
         const tasksList = this.tasksList$.getValue();
         this.tasksList$.next(tasksList);
       },
       error: (err) => {
         this.notification.showWarning(
-          'Task cannot be updated. Please reload App and try again.',
+          'The Task cannot be updated. Please reload App and try again.',
           'Warning'
         );
       },
     });
   }
-  public getTasksFromDB() {
+  public getTasksFromDB(): void {
     this.http.getTasks().subscribe({
-      next: (tasks) => {
-        const responseArray = Object.values(tasks);
-        const listOfTasks: Task[] = Object.values(responseArray[0]);
-        this.tasksList$.next(listOfTasks);
+      next: (tasksResponse: TasksResponse) => {
+        this.tasksList$.next(tasksResponse.tasks);
         this.notification.showSuccess(
-          'Tasks has been reloaded from DB',
+          'Tasks have been reloaded from DB',
           'SUCCESS: '
         );
       },
@@ -96,7 +95,7 @@ export class TaskService {
     });
   }
 
-  public clearTasksList() {
+  public clearTasksList(): void {
     this.tasksList$.next([]);
   }
 }

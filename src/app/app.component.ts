@@ -10,8 +10,8 @@ import { NotificationService } from './services/notification.service';
   styleUrls: ['./app.component.css'],
 })
 export class AppComponent {
-  title = 'Welcome in Demo Tasks App';
-  email: string | null = '';
+  title: string = 'Welcome in Demo Tasks App';
+  email: string = '';
   expirationTime: string = '';
   isMenuRequired: boolean = false;
   constructor(
@@ -22,12 +22,16 @@ export class AppComponent {
   ) {
     this.router.events.subscribe((event: Event) => {
       if (event instanceof NavigationEnd) {
-        const currentURL = this.router.url;
+        const currentURL: string = this.router.url;
         if (currentURL == '/signin' || currentURL == '/register') {
           this.isMenuRequired = false;
         } else {
-          this.email = this.authService.getEmail;
-          this.expirationTime = this.authService.getSessionTime;
+          this.email = this.authService.getEmail
+            ? this.authService.getEmail
+            : 'undefined';
+          this.expirationTime = this.authService.isSignedIn
+            ? this.authService.getSessionTime
+            : 'undefined';
           this.isMenuRequired = true;
         }
       }
@@ -38,7 +42,7 @@ export class AppComponent {
     });
   }
 
-  proceedLogOut() {
+  proceedLogOut(): void {
     this.taskService.clearTasksList();
     this.authService.signOut();
     this.notification.showSuccess(

@@ -7,12 +7,17 @@ import { ResponseMessage, SessionTime, SignInResponse } from '../models/types';
 import jwt_decode from 'jwt-decode';
 import * as moment from 'moment';
 import { SessionToken } from '../models/types';
+import { NotificationService } from './notification.service';
 
 @Injectable()
 export class AuthService {
   private readonly TOKEN_NAME: string = 'user_auth';
   private readonly apiUrl: string = 'https://tasks-api-yg3r.onrender.com/';
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    private notification: NotificationService
+  ) {}
 
   public signIn(_user: User): Observable<ResponseMessage> {
     return this.signInRequest(_user).pipe(
@@ -28,6 +33,16 @@ export class AuthService {
     localStorage.removeItem(this.TOKEN_NAME);
     localStorage.removeItem('expires_at');
     localStorage.removeItem('email');
+  }
+
+  //USER SignUp request
+  public signUp(_user: User): Observable<ResponseMessage> {
+    this.notification.showInfo('Please wait...', 'INFO:');
+    const endpoint = 'user/signup';
+    return this.http.post<ResponseMessage>(this.apiUrl + endpoint, {
+      email: _user.email,
+      password: _user.password,
+    });
   }
 
   get isSignedIn(): Boolean {
@@ -66,7 +81,7 @@ export class AuthService {
     };
   }
 
-  private setSession(_response: Pick<SignedUser, 'sessionToken'>) {
+  private setSession(_response: Pick<SignedUser, 'sessionToken'>): void {
     const token: string | undefined = _response.sessionToken;
     if (token) {
       const decoded: {
@@ -80,7 +95,7 @@ export class AuthService {
         //sign out when Session will end for an account
         this.signOut();
         this.router.navigate(['signin']);
-      }, expiration * 1000);
+      }, expiration * 100);
       localStorage.setItem(
         'expires_at',
         JSON.stringify(moment().add(expiration, 'second'))

@@ -18,7 +18,7 @@ export class DateDirective {
   }
 
   @HostListener('mouseenter')
-  mouseEnter(eventDate: Event): void {
+  private mouseEnter(eventDate: Event): void {
     const setData: string = this.end
       ? `<p style="margin-bottom:0">Created: ${this.date}</p>
       <p style="margin-bottom:0">Ended: ${this.end}</p>`
@@ -28,7 +28,7 @@ export class DateDirective {
     this.renderer.appendChild(this.el.nativeElement, this.paragraph);
   }
   @HostListener('mouseleave')
-  mouseLeave(eventDate: Event): void {
+  private mouseLeave(eventDate: Event): void {
     this.renderer.removeChild(this.el.nativeElement, this.paragraph);
   }
 }

@@ -7,13 +7,13 @@ import { Task } from '../models/task';
 export class SortNamePipe implements PipeTransform {
   transform(value: Array<Task>, args?: any): Task[] {
     return value.sort((a, b) => {
-      //TODO we can to do comparison in this way
+      //! we can to do comparison in this way
       // if (a.name.toLocaleLowerCase() > b.name.toLowerCase()) {
       //   return 1;
       // } else {
       //   return -1;
       // }
-      //TODO or much shorter below
+      //! but it could be better if we use much less code with method like below
       return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
     });
   }

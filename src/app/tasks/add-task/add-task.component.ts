@@ -9,15 +9,15 @@ import { TaskService } from 'src/app/services/task.service';
   styleUrls: ['./add-task.component.css'],
 })
 export class AddTaskComponent {
-  newTask: string = '';
+  public newTask: string = '';
   constructor(
     private taskService: TaskService,
     private notification: NotificationService
   ) {}
-  add() {
+  public add(): void {
     if (this.newTask) {
       this.notification.showInfo(
-        'The task is going to be add to DataBase... Please wait',
+        'The Task is going to be add to DataBase... Please wait',
         'INFO:'
       );
       const task: Pick<Task, 'name' | 'created' | 'isDone'> = {
@@ -29,7 +29,7 @@ export class AddTaskComponent {
       this.newTask = '';
     } else {
       this.notification.showWarning(
-        "We can't add an empty task in this app. Please fill in this field with your Task",
+        'We cannot add an empty Task in this app. Please fill the content in this field with your Task',
         'WARNING:'
       );
     }

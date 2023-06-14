@@ -8,7 +8,7 @@ import { TaskService } from 'src/app/services/task.service';
   styleUrls: ['./done-task.component.css'],
 })
 export class DoneTaskComponent {
-  tasksDone: Task[] = [];
+  public tasksDone: Task[] = [];
   constructor(private taskService: TaskService) {
     this.taskService.getTasksList$().subscribe((tasks: Task[]) => {
       this.tasksDone = tasks.filter((item) => item.isDone === true);

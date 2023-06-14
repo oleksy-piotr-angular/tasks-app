@@ -6,30 +6,33 @@ import {
   Validators,
   AbstractControlOptions,
 } from '@angular/forms';
-import { HttpService } from '../services/http.service';
 import { Router } from '@angular/router';
 import { NotificationService } from '../services/notification.service';
 import { User } from '../models/user';
 import { ResponseMessage, ErrorMessage } from '../models/types';
+import { AuthService } from '../services/auth.service';
 @Component({
   selector: 'app-sign-up',
   templateUrl: './sign-up.component.html',
   styleUrls: ['./sign-up.component.css'],
 })
 export class SignUpComponent {
-  signUpForm: FormGroup<{
+  public isLoading: boolean = false;
+  public signUpForm: FormGroup<{
     email: FormControl<string>;
     password: FormControl<string>;
     confirmPassword: FormControl<string>;
   }>;
-  isLoading: boolean = false;
 
   constructor(
-    private http: HttpService,
+    private authService: AuthService,
     private notification: NotificationService,
     private router: Router,
     private fb: FormBuilder
   ) {
+    if (this.authService.isSignedIn) {
+      this.router.navigate(['']);
+    }
     this.signUpForm = this.fb.group(
       {
         email: this.fb.nonNullable.control(
@@ -58,11 +61,41 @@ export class SignUpComponent {
       } as AbstractControlOptions
     );
   }
-  get getFormControl() {
+  get getFormControl(): {
+    email: FormControl<string>;
+    password: FormControl<string>;
+    confirmPassword: FormControl<string>;
+  } {
     return this.signUpForm.controls;
   }
 
-  mustMatch(password: string, confirmPassword: string) {
+  public proceedSignUp(): void {
+    this.isLoading = true;
+    if (this.signUpForm.valid) {
+      const _user: Pick<User, 'email' | 'password'> = {
+        email: this.signUpForm.value.email ? this.signUpForm.value.email : '',
+        password: this.signUpForm.value.password
+          ? this.signUpForm.value.password
+          : '',
+      };
+      this.authService.signUp(_user).subscribe({
+        next: (response: ResponseMessage) => {
+          this.notification.showSuccess(response.message, 'INFO:');
+          this.router.navigate(['signin']);
+        },
+        error: (err: ErrorMessage) => {
+          this.notification.showError(err.error.message, 'ERROR:');
+          this.isLoading = false;
+          this.router.navigate(['register']);
+        },
+      });
+    }
+  }
+
+  private mustMatch(
+    password: string,
+    confirmPassword: string
+  ): (formGroup: FormGroup) => void {
     return (formGroup: FormGroup) => {
       const passwordControl = formGroup.controls[password];
       const confirmPasswordControl = formGroup.controls[confirmPassword];
@@ -79,28 +112,5 @@ export class SignUpComponent {
         confirmPasswordControl.setErrors(null);
       }
     };
-  }
-
-  proceedSignUp() {
-    this.isLoading = true;
-    if (this.signUpForm.valid) {
-      const _user: User = {
-        email: this.signUpForm.value.email ? this.signUpForm.value.email : '',
-        password: this.signUpForm.value.password
-          ? this.signUpForm.value.password
-          : '',
-      };
-      this.http.signUp(_user).subscribe({
-        next: (response: ResponseMessage) => {
-          this.notification.showSuccess(response.message, 'INFO:');
-          this.router.navigate(['signin']);
-        },
-        error: (err: ErrorMessage) => {
-          this.notification.showError(err.error.message, 'ERROR:');
-          this.isLoading = false;
-          this.router.navigate(['register']);
-        },
-      });
-    }
   }
 }

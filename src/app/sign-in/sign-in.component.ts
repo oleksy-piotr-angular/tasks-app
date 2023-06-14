@@ -9,6 +9,7 @@ import { AuthService } from '../services/auth.service';
 import { User } from '../models/user';
 import { TaskService } from '../services/task.service';
 import { NotificationService } from '../services/notification.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-sign-in',
@@ -16,8 +17,8 @@ import { NotificationService } from '../services/notification.service';
   styleUrls: ['./sign-in.component.css'],
 })
 export class SignInComponent {
-  isLoading: boolean = false;
-  signInForm: FormGroup<{
+  public isLoading: boolean = false;
+  public signInForm: FormGroup<{
     email: FormControl<string>;
     password: FormControl<string>;
   }>;
@@ -26,15 +27,19 @@ export class SignInComponent {
     private authService: AuthService,
     private fb: FormBuilder,
     private notification: NotificationService,
-    private taskService: TaskService
+    private taskService: TaskService,
+    private router: Router
   ) {
+    if (this.authService.isSignedIn) {
+      this.router.navigate(['']);
+    }
     this.signInForm = this.fb.group({
       email: this.fb.nonNullable.control('', Validators.required),
       password: this.fb.nonNullable.control('', Validators.required),
     });
   }
 
-  proceedSignIn() {
+  public proceedSignIn(): void {
     this.isLoading = true;
     this.authService.signOut();
     if (this.signInForm.valid) {
@@ -46,7 +51,6 @@ export class SignInComponent {
       };
       this.authService.signIn(user).subscribe({
         next: (res) => {
-          this.taskService.getTasksFromDB();
           this.notification.showSuccess(res.message, 'SUCCESS');
           this.isLoading = false;
         },

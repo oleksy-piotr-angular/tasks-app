@@ -9,30 +9,31 @@ import { TaskService } from 'src/app/services/task.service';
   styleUrls: ['./todo-task.component.css'],
 })
 export class TodoTaskComponent {
-  tasksList: Task[] = [];
+  public tasksList: Task[] = [];
   constructor(
     private tasksService: TaskService,
     private notification: NotificationService
   ) {
+    this.tasksService.getTasksFromDB();
     this.tasksService.getTasksList$().subscribe((tasks: Task[]) => {
       this.tasksList = tasks.filter((t) => t.isDone === false);
     });
   }
-  remove(task: Task) {
+  public remove(_task: Pick<Task, '_id'>): void {
     this.notification.showInfo(
-      'The task is going to be removed from DataBase... Please wait',
+      'The Task is going to be removed from DataBase... Please wait',
       'INFO:'
     );
-    this.tasksService.remove(task);
+    this.tasksService.remove(_task);
   }
-  done(task: Task) {
+  public done(_task: Pick<Task, '_id' | 'end' | 'isDone'>): void {
     this.notification.showInfo(
-      'The task is going to be updated in DataBase... Please wait',
+      'The Task is going to be updated in DataBase... Please wait',
       'INFO:'
     );
-    this.tasksService.done(task);
+    this.tasksService.done(_task);
   }
-  getColor(): string {
+  public getColor(): string {
     return this.tasksList.length >= 5 ? 'red' : 'chartreuse';
   }
 }
