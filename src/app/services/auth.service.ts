@@ -92,10 +92,10 @@ export class AuthService {
       const email: string = this.decodeTokenData(token).email;
       const expiration: number = decoded.exp - decoded.iat;
       setTimeout(() => {
-        //sign out when Session will end for an account
+        //sign out when Session will end
         this.signOut();
         this.router.navigate(['signin']);
-      }, expiration * 100);
+      }, expiration * 1000);
       localStorage.setItem(
         'expires_at',
         JSON.stringify(moment().add(expiration, 'second'))

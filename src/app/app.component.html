@@ -3,10 +3,10 @@
   <h1>{{ title }}</h1>
   <div *ngIf="isMenuRequired">
     <button (click)="proceedLogOut()" class="btn btn-outline-danger">
-      Logout:<br />
       {{ email }}<br />
       Session Expires at:<br />
-      {{ expirationTime }}
+      {{ expirationTime }}<br />
+      Click to logout.
     </button>
   </div>
 </div>
