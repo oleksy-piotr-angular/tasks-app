@@ -1,107 +1,51 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { User } from '../models/user';
-import { catchError, map, retry } from 'rxjs/operators';
 import { Task } from '../models/task';
-import { UserService } from './user.service';
+import { ResponseMessage, TasksResponse } from '../models/types';
 
 @Injectable()
 export class HttpService {
   private readonly apiUrl: string = 'https://tasks-api-yg3r.onrender.com/';
   constructor(private http: HttpClient) {}
 
-  //USER requests
-  async signInRequest(user: User): Promise<Observable<User>> {
-    const endpoint = 'user/login';
-    return this.http
-      .post<User>(this.apiUrl + endpoint, {
-        email: user.email,
-        password: user.password,
-      })
-      .pipe(
-        retry(1),
-        catchError((err) => {
-          throw err;
-        }),
-        map((response) => response)
-      );
-  }
-
-  async signUpRequest(user: User): Promise<Observable<User>> {
-    const endpoint = 'user/signup';
-    const httpHeaders = new HttpHeaders();
-    return this.http
-      .post<User>(this.apiUrl + endpoint, {
-        email: user.email,
-        password: user.password,
-      })
-      .pipe(
-        retry(1),
-        catchError((err) => {
-          throw err;
-        }),
-        map((response) => response)
-      );
-  }
-
   //TASK requests
-  async getTask(): Promise<Observable<Array<Task>>> {
+  public getTasks(): Observable<TasksResponse> {
     const endpoint = 'tasks/myTasks';
-    return this.http
-      .get<Array<Task>>(this.apiUrl + endpoint, {
-        responseType: 'json',
-      })
-      .pipe(
-        retry(1),
-        catchError((err) => {
-          throw err;
-        }),
-        map((response) => response)
-      );
+    return this.http.get<TasksResponse>(this.apiUrl + endpoint, {
+      responseType: 'json',
+    });
   }
-  async saveOneTask(task: Task): Promise<Observable<Task>> {
+  public saveOneTask(
+    task: Pick<Task, 'name' | 'created' | 'isDone'>
+  ): Observable<ResponseMessage> {
     const endpoint = 'tasks/create';
-    return this.http.post<Task>(this.apiUrl + endpoint, task).pipe(
-      retry(1),
-      catchError((err) => {
-        throw err;
-      }),
-      map((response) => response)
-    );
+    return this.http.post<ResponseMessage>(this.apiUrl + endpoint, task);
   }
-  async removeOneTask(task: Task): Promise<Observable<Task>> {
-    const task_ID = task._id;
+  public removeOneTask(_task: Pick<Task, '_id'>): Observable<ResponseMessage> {
+    //const task_ID = ;
     const endpoint = 'tasks/removeTask/';
-    return this.http.delete<Task>(this.apiUrl + endpoint + task_ID).pipe(
-      retry(1),
-      catchError((err) => {
-        throw err;
-      }),
-      map((response) => response)
+    return this.http.delete<ResponseMessage>(
+      this.apiUrl + endpoint + _task._id
     );
   }
-  async updateOneTaskToDone(task: Task): Promise<Observable<Task>> {
+  public updateOneTaskToDone(
+    _task: Pick<Task, '_id' | 'end' | 'isDone'>
+  ): Observable<ResponseMessage> {
     const endpoint = 'tasks/updateTask/';
-    const task_ID = task._id;
     const updateBody = [
       {
         propName: 'isDone',
-        value: true,
+        value: _task.isDone,
       },
       {
         propName: 'end',
-        value: task.end,
+        value: _task.end,
       },
     ];
-    return this.http
-      .patch<Task>(this.apiUrl + endpoint + task_ID, updateBody)
-      .pipe(
-        retry(1),
-        catchError((err) => {
-          throw err;
-        }),
-        map((response) => response)
-      );
+    return this.http.patch<ResponseMessage>(
+      this.apiUrl + endpoint + _task._id,
+      updateBody
+    );
   }
 }

@@ -1,15 +1,22 @@
+li {
+  padding: 10px;
+  background-color: #fff;
+  color: chartreuse;
+}
+li > p > span {
+  color: black;
+}
 .odd-li {
   background: lavender;
-  margin: 5px;
 }
 .last-list {
   background: pink;
-  margin: 5px;
 }
 
-li > p {
-  /* to not move whole element we show Data info above it */
+li > p.date {
+  /* to not move <li> elements we show Data info above it */
   z-index: 100;
   position: absolute;
   background-color: yellow;
+  color: black;
 }

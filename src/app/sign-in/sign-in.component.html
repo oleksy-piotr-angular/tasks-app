@@ -1,16 +1,16 @@
 <div *ngIf="isLoading; else elseBlock">
-  <h1 class="loading-header">Is Loading</h1>
+  <h1 class="loading-header">Is Loading...</h1>
   <div class="loading-wrapper"><div class="loader"></div></div>
 </div>
 <ng-template #elseBlock>
   <mat-card>
     <mat-card-header>
-      <h1>User Sign in</h1>
+      <h2>User Sign in</h2>
     </mat-card-header>
     <mat-card-content>
       <form
         class="example-form"
-        [formGroup]="loginForm"
+        [formGroup]="signInForm"
         (ngSubmit)="proceedSignIn()"
       >
         <mat-form-field class="example-full-width">
@@ -28,7 +28,7 @@
         </mat-form-field>
         <div>
           <button
-            [disabled]="loginForm.invalid"
+            [disabled]="signInForm.invalid"
             mat-raised-button
             color="primary"
           >

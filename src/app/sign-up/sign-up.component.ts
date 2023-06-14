@@ -4,36 +4,45 @@ import {
   FormGroup,
   FormControl,
   Validators,
+  AbstractControlOptions,
 } from '@angular/forms';
-import { User } from '../models/user';
-import { UserService } from '../services/user.service';
-import { ToastrService } from 'ngx-toastr';
 import { Router } from '@angular/router';
+import { NotificationService } from '../services/notification.service';
+import { User } from '../models/user';
+import { ResponseMessage, ErrorMessage } from '../models/types';
+import { AuthService } from '../services/auth.service';
 @Component({
   selector: 'app-sign-up',
   templateUrl: './sign-up.component.html',
   styleUrls: ['./sign-up.component.css'],
 })
 export class SignUpComponent {
-  reactiveForm!: FormGroup;
-  isLoading: boolean = false;
+  public isLoading: boolean = false;
+  public signUpForm: FormGroup<{
+    email: FormControl<string>;
+    password: FormControl<string>;
+    confirmPassword: FormControl<string>;
+  }>;
 
   constructor(
-    private userService: UserService,
-    private toastr: ToastrService,
+    private authService: AuthService,
+    private notification: NotificationService,
     private router: Router,
-    private formBuilder: FormBuilder
+    private fb: FormBuilder
   ) {
-    this.reactiveForm = this.formBuilder.group(
+    if (this.authService.isSignedIn) {
+      this.router.navigate(['']);
+    }
+    this.signUpForm = this.fb.group(
       {
-        email: new FormControl(
+        email: this.fb.nonNullable.control(
           '',
           Validators.compose([
             Validators.pattern('[a-z0-9._%+-]+@[a-z0-9.-]+.[a-z]{2,3}'),
             Validators.required,
           ])
         ),
-        password: new FormControl(
+        password: this.fb.nonNullable.control(
           '',
           Validators.compose([
             Validators.required,
@@ -42,22 +51,51 @@ export class SignUpComponent {
             ),
           ])
         ),
-        confirmPassword: new FormControl(
+        confirmPassword: this.fb.nonNullable.control(
           '',
           Validators.compose([Validators.required])
         ),
       },
       {
         validators: this.mustMatch('password', 'confirmPassword'),
-      }
+      } as AbstractControlOptions
     );
   }
-
-  get getFormControl() {
-    return this.reactiveForm.controls;
+  get getFormControl(): {
+    email: FormControl<string>;
+    password: FormControl<string>;
+    confirmPassword: FormControl<string>;
+  } {
+    return this.signUpForm.controls;
   }
 
-  mustMatch(password: string, confirmPassword: string) {
+  public proceedSignUp(): void {
+    this.isLoading = true;
+    if (this.signUpForm.valid) {
+      const _user: Pick<User, 'email' | 'password'> = {
+        email: this.signUpForm.value.email ? this.signUpForm.value.email : '',
+        password: this.signUpForm.value.password
+          ? this.signUpForm.value.password
+          : '',
+      };
+      this.authService.signUp(_user).subscribe({
+        next: (response: ResponseMessage) => {
+          this.notification.showSuccess(response.message, 'INFO:');
+          this.router.navigate(['signin']);
+        },
+        error: (err: ErrorMessage) => {
+          this.notification.showError(err.error.message, 'ERROR:');
+          this.isLoading = false;
+          this.router.navigate(['register']);
+        },
+      });
+    }
+  }
+
+  private mustMatch(
+    password: string,
+    confirmPassword: string
+  ): (formGroup: FormGroup) => void {
     return (formGroup: FormGroup) => {
       const passwordControl = formGroup.controls[password];
       const confirmPasswordControl = formGroup.controls[confirmPassword];
@@ -74,32 +112,5 @@ export class SignUpComponent {
         confirmPasswordControl.setErrors(null);
       }
     };
-  }
-
-  proceedSignUp() {
-    this.isLoading = true;
-    if (this.reactiveForm.valid) {
-      const user = {
-        email: this.reactiveForm.value.email,
-        password: this.reactiveForm.value.password,
-      };
-      this.signUp(user);
-    }
-  }
-
-  async signUp(user: User) {
-    await this.userService
-      .signUp(user)
-      .then(async (response) => {
-        this.toastr.clear();
-        this.toastr.success('You have successfully Sign Up...');
-        this.router.navigate(['signin']);
-      })
-      .catch((err) => {
-        const errorMessage = err.error[Object.keys(err.error)[0]]; //extract Error Message
-        this.toastr.clear();
-        this.toastr.error(errorMessage);
-        this.isLoading = false;
-      });
   }
 }

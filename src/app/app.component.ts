@@ -1,41 +1,54 @@
-import { Component, DoCheck, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { ToastrService } from 'ngx-toastr';
+import { Component } from '@angular/core';
+import { Router, Event, NavigationError, NavigationEnd } from '@angular/router';
 import { TaskService } from './services/task.service';
+import { AuthService } from './services/auth.service';
+import { NotificationService } from './services/notification.service';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
 })
-export class AppComponent implements DoCheck {
-  title = 'tasks-app';
-  email: string | null = '';
+export class AppComponent {
+  title: string = 'Welcome in Demo Tasks App';
+  email: string = '';
+  expirationTime: string = '';
   isMenuRequired: boolean = false;
   constructor(
     private router: Router,
-    private toastr: ToastrService,
-    private taskService: TaskService
-  ) {}
+    private notification: NotificationService,
+    private taskService: TaskService,
+    private authService: AuthService
+  ) {
+    this.router.events.subscribe((event: Event) => {
+      if (event instanceof NavigationEnd) {
+        const currentURL: string = this.router.url;
+        if (currentURL == '/signin' || currentURL == '/register') {
+          this.isMenuRequired = false;
+        } else {
+          this.email = this.authService.getEmail
+            ? this.authService.getEmail
+            : 'undefined';
+          this.expirationTime = this.authService.isSignedIn
+            ? this.authService.getSessionTime
+            : 'undefined';
+          this.isMenuRequired = true;
+        }
+      }
+      if (event instanceof NavigationError) {
+        router.navigate(['signin']);
+        notification.showError(event.error, 'Error: ');
+      }
+    });
+  }
 
-  proceedLogOut() {
+  proceedLogOut(): void {
     this.taskService.clearTasksList();
-    localStorage.removeItem('email');
-    localStorage.removeItem('user_auth');
-    this.toastr.clear();
-    this.toastr.success('You have successfully logged out');
+    this.authService.signOut();
+    this.notification.showSuccess(
+      'You have successfully logged out',
+      'Success:'
+    );
     this.router.navigate(['signin']);
-  }
-  ngDoCheck(): void {
-    let currentURL = this.router.url;
-    if (currentURL == '/signin' || currentURL == '/register') {
-      this.isMenuRequired = false;
-    } else {
-      this.email = localStorage.getItem('email');
-      this.isMenuRequired = true;
-    }
-  }
-  isLoading(): boolean {
-    return localStorage.hasOwnProperty('isLoading');
   }
 }

@@ -1,7 +1,7 @@
 export interface Task {
-  _id?: { $oid: string };
+  _id: { $oid: string };
   name: string;
   created: string;
-  end?: string;
+  end: string;
   isDone: boolean;
 }

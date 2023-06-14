@@ -1,128 +1,101 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, lastValueFrom } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { Task } from '../models/task';
 import { HttpService } from './http.service';
-import { ToastrService } from 'ngx-toastr';
-import { UserService } from './user.service';
+import { NotificationService } from './notification.service';
+import { AuthService } from './auth.service';
+import { ResponseMessage, TasksResponse } from '../models/types';
 
 @Injectable({
   providedIn: 'root',
 })
 export class TaskService {
-  private tasksList$ = new BehaviorSubject<Array<Task>>([]);
+  private tasksList$ = new BehaviorSubject<Task[]>([]);
 
   constructor(
     private http: HttpService,
-    private user: UserService,
-    private toastr: ToastrService
+    private authService: AuthService,
+    private notification: NotificationService
   ) {
-    if (user.isLoggedIn()) {
+    if (this.authService.isSignedIn) {
       this.getTasksFromDB();
     }
   }
 
-  getTasksList$(): Observable<Array<Task>> {
+  public getTasksList$(): Observable<Task[]> {
     return this.tasksList$.asObservable();
   }
 
-  async add(task: Task) {
-    localStorage.setItem('isLoading', 'yes');
-    const tasksList = this.tasksList$.getValue();
-    tasksList.push(task);
-    this.tasksList$.next(tasksList);
-    await this.saveOneTaskInDB(task)
-      .then(async (response) => {
-        this.toastr.clear();
-        this.toastr.success('Successfully saved.');
-      })
-      .catch((err) => {
-        const errorMessage = err.error[Object.keys(err.error)[0]]; //extract Error Message
-        this.toastr.clear();
-        this.toastr.error(errorMessage);
-      });
-
-    this.getTasksFromDB(); //need to reload list to Take Task ID
+  public add(_task: Pick<Task, 'created' | 'isDone' | 'name'>): void {
+    this.http.saveOneTask(_task).subscribe({
+      next: (res: ResponseMessage) => {
+        this.notification.showSuccess(res.message + ' in DataBase', 'Success:');
+        this.getTasksFromDB(); //need to reload list to Take a new Task ID from Mongo DB
+      },
+      error: (err) => {
+        this.notification.showWarning(
+          'The Task cannot be saved. Please reload App and try again.',
+          'Warning'
+        );
+      },
+    });
   }
-  async remove(task: Task) {
-    localStorage.setItem('isLoading', 'yes');
-    const tasksList = this.tasksList$.getValue().filter((item) => item != task);
-    this.tasksList$.next(tasksList);
-    await this.removeOneTaskInDB(task)
-      .then((_response) => {
-        this.toastr.clear();
-        const response = Object.values(_response);
-        this.toastr.success(response[0]); //message Response
-      })
-      .catch((err) => {
-        const errorMessage = err.error[Object.keys(err.error)[0]]; //extract Error Message
-        this.toastr.clear();
-        this.toastr.error(errorMessage);
-      });
-    localStorage.removeItem('isLoading');
+  public remove(_task: Pick<Task, '_id'>): void {
+    this.http.removeOneTask(_task).subscribe({
+      next: (res: ResponseMessage) => {
+        this.notification.showSuccess(
+          res.message + ' from DataBase',
+          'Success:'
+        );
+        const tasksList = this.tasksList$
+          .getValue()
+          .filter((item) => item != _task);
+        this.tasksList$.next(tasksList);
+      },
+      error: (err) => {
+        this.notification.showWarning(
+          'The Task cannot be updated in DB. Please reload App and try again.',
+          'Warning'
+        );
+      },
+    });
   }
-  async done(task: Task) {
-    localStorage.setItem('isLoading', 'yes');
-    task.end = new Date().toLocaleString();
-    task.isDone = true;
-    const tasksList = this.tasksList$.getValue();
-    this.tasksList$.next(tasksList);
-    await this.updateOneTaskInDB(task)
-      .then((_response) => {
-        this.toastr.clear();
-        const response = Object.values(_response);
-        this.toastr.success(response[0]); //message Response
-      })
-      .catch((err) => {
-        const errorMessage = err.error[Object.keys(err.error)[0]]; //extract Error Message
-        this.toastr.clear();
-        this.toastr.error(errorMessage);
-      });
-    localStorage.removeItem('isLoading');
+  public done(_task: Pick<Task, '_id' | 'end' | 'isDone'>): void {
+    _task.end = new Date().toLocaleString();
+    _task.isDone = true;
+    this.http.updateOneTaskToDone(_task).subscribe({
+      next: (res: ResponseMessage) => {
+        this.notification.showSuccess(res.message + ' in DataBase', 'Success:');
+        const tasksList = this.tasksList$.getValue();
+        this.tasksList$.next(tasksList);
+      },
+      error: (err) => {
+        this.notification.showWarning(
+          'The Task cannot be updated. Please reload App and try again.',
+          'Warning'
+        );
+      },
+    });
   }
-
-  //Async functions with API Requests
-  async updateOneTaskInDB(task: Task) {
-    try {
-      const responseData$ = await this.http.updateOneTaskToDone(task);
-      return lastValueFrom(responseData$);
-    } catch (err) {
-      throw err;
-    }
-  }
-  async removeOneTaskInDB(task: Task) {
-    try {
-      const responseData$ = await this.http.removeOneTask(task);
-      return lastValueFrom(responseData$);
-    } catch (err) {
-      throw err;
-    }
-  }
-  async saveOneTaskInDB(task: Task) {
-    try {
-      const responseData$ = await this.http.saveOneTask(task);
-      return lastValueFrom(responseData$);
-    } catch (err) {
-      throw err;
-    }
-  }
-  async getTasksFromDB() {
-    localStorage.setItem('isLoading', 'yes');
-    this.toastr.info('Loading...');
-    try {
-      (await this.http.getTask()).subscribe((tasks) => {
-        const responseArray = Object.values(tasks);
-        const listOfTasks: Task[] = Object.values(responseArray[0]);
-        this.tasksList$.next(listOfTasks);
-        this.toastr.clear();
-        localStorage.removeItem('isLoading');
-      });
-    } catch (err) {
-      localStorage.removeItem('isLoading');
-      throw err;
-    }
+  public getTasksFromDB(): void {
+    this.http.getTasks().subscribe({
+      next: (tasksResponse: TasksResponse) => {
+        this.tasksList$.next(tasksResponse.tasks);
+        this.notification.showSuccess(
+          'Tasks have been reloaded from DB',
+          'SUCCESS: '
+        );
+      },
+      error: (err) => {
+        this.notification.showSuccess(
+          'Tasks from DB cannot be reloaded',
+          'ERROR: '
+        );
+      },
+    });
   }
 
-  clearTasksList() {
+  public clearTasksList(): void {
     this.tasksList$.next([]);
   }
 }

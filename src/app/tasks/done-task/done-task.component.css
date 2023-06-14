@@ -1,13 +1,9 @@
 li {
-  /* add styles to <li> element - align checked.png image in <li> element */
-  padding: 5px 10px 5px 36px;
+  padding: 5px 10px 5px 10px;
   list-style: none;
-  margin: 0;
-  vertical-align: middle;
-  background-position-x: 10px;
-  background-position-y: center;
+  background: rgb(195, 253, 137);
 }
-li > div p {
+li > div p.date {
   /* to not moving whole element we show Data info above it */
   z-index: 100;
   position: absolute;

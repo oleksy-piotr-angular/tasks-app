@@ -1,4 +1,4 @@
-h1 {
+h2 {
   color: white;
 }
 .loading-header {
@@ -17,6 +17,9 @@ h1 {
 .loading-wrapper {
   display: flex;
   justify-content: center;
+}
+.mat-mdc-card {
+  border-radius: inherit;
 }
 
 @keyframes spin {
