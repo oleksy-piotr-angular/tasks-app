@@ -1,7 +1,11 @@
+import { SessionToken } from './types';
+
 export interface User {
-  _id?: { $oid: string };
-  email?: string;
-  password?: string;
-  sessionToken?: string;
-  loggedIn?: Boolean;
+  email: string;
+  password: string;
+}
+
+export interface SignedUser extends User {
+  _id: { $oid: string };
+  sessionToken: SessionToken;
 }

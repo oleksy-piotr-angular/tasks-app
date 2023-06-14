@@ -1,10 +1,15 @@
 import { Component } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
-import { UserService } from '../services/user.service';
-import { ToastrService } from 'ngx-toastr';
-import { Router } from '@angular/router';
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  Validators,
+} from '@angular/forms';
+import { AuthService } from '../services/auth.service';
 import { User } from '../models/user';
 import { TaskService } from '../services/task.service';
+import { NotificationService } from '../services/notification.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-sign-in',
@@ -12,51 +17,48 @@ import { TaskService } from '../services/task.service';
   styleUrls: ['./sign-in.component.css'],
 })
 export class SignInComponent {
-  constructor(
-    private userService: UserService,
-    private builder: FormBuilder,
-    private toastr: ToastrService,
-    private router: Router,
-    private taskService: TaskService
-  ) {}
-  isLoading: boolean = false;
-  loginForm = this.builder.group({
-    email: this.builder.nonNullable.control('', Validators.required),
-    password: this.builder.nonNullable.control('', Validators.required),
-  });
+  public isLoading: boolean = false;
+  public signInForm: FormGroup<{
+    email: FormControl<string>;
+    password: FormControl<string>;
+  }>;
 
-  proceedSignIn() {
-    this.isLoading = true;
-    if (this.loginForm.valid) {
-      const user = {
-        email: this.loginForm.value.email,
-        password: this.loginForm.value.password,
-      };
-      this.signIn(user);
+  constructor(
+    private authService: AuthService,
+    private fb: FormBuilder,
+    private notification: NotificationService,
+    private taskService: TaskService,
+    private router: Router
+  ) {
+    if (this.authService.isSignedIn) {
+      this.router.navigate(['']);
     }
+    this.signInForm = this.fb.group({
+      email: this.fb.nonNullable.control('', Validators.required),
+      password: this.fb.nonNullable.control('', Validators.required),
+    });
   }
-  async signIn(user: User) {
-    await this.userService
-      .signIn(user)
-      .then((response) => {
-        this.userService.setUserData({
-          email: user.email,
-          sessionToken: response.sessionToken,
-        });
-      })
-      .then(async (response) => {
-        if (this.userService.isLoggedIn()) {
-          this.toastr.clear();
-          this.toastr.success('You have successfully Sign in...');
-          this.taskService.getTasksFromDB();
-          this.router.navigate(['']);
-        }
-      })
-      .catch((err) => {
-        this.toastr.clear();
-        const errorMessage = err.error[Object.keys(err.error)[0]]; //extract Error Message
-        this.toastr.error(errorMessage);
-        this.isLoading = false;
+
+  public proceedSignIn(): void {
+    this.isLoading = true;
+    this.authService.signOut();
+    if (this.signInForm.valid) {
+      const user: User = {
+        email: this.signInForm.value.email ? this.signInForm.value.email : '',
+        password: this.signInForm.value.password
+          ? this.signInForm.value.password
+          : '',
+      };
+      this.authService.signIn(user).subscribe({
+        next: (res) => {
+          this.notification.showSuccess(res.message, 'SUCCESS');
+          this.isLoading = false;
+        },
+        error: (err) => {
+          this.notification.showError(err.error.message, 'ERROR:');
+          this.isLoading = false;
+        },
       });
+    }
   }
 }

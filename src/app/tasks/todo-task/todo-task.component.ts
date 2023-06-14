@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { Task } from 'src/app/models/task';
+import { NotificationService } from 'src/app/services/notification.service';
 import { TaskService } from 'src/app/services/task.service';
 
 @Component({
@@ -8,20 +9,31 @@ import { TaskService } from 'src/app/services/task.service';
   styleUrls: ['./todo-task.component.css'],
 })
 export class TodoTaskComponent {
-  tasksList: Array<Task> = [];
-  constructor(private tasksService: TaskService) {
-    //this.tasksService.getTasksFromDB();
+  public tasksList: Task[] = [];
+  constructor(
+    private tasksService: TaskService,
+    private notification: NotificationService
+  ) {
+    this.tasksService.getTasksFromDB();
     this.tasksService.getTasksList$().subscribe((tasks: Task[]) => {
-      this.tasksList = tasks.filter((t) => t.isDone === false).slice();
+      this.tasksList = tasks.filter((t) => t.isDone === false);
     });
   }
-  remove(task: Task) {
-    this.tasksService.remove(task);
+  public remove(_task: Pick<Task, '_id'>): void {
+    this.notification.showInfo(
+      'The Task is going to be removed from DataBase... Please wait',
+      'INFO:'
+    );
+    this.tasksService.remove(_task);
   }
-  done(task: Task) {
-    this.tasksService.done(task);
+  public done(_task: Pick<Task, '_id' | 'end' | 'isDone'>): void {
+    this.notification.showInfo(
+      'The Task is going to be updated in DataBase... Please wait',
+      'INFO:'
+    );
+    this.tasksService.done(_task);
   }
-  getColor(): string {
-    return this.tasksList.length >= 5 ? 'red' : 'green';
+  public getColor(): string {
+    return this.tasksList.length >= 5 ? 'red' : 'chartreuse';
   }
 }

@@ -7,7 +7,9 @@
       *ngFor="let task of tasksList | sortName; let odd = odd"
       [ngClass]="{ 'odd-li': odd, 'last-list': tasksList.length === 1 }"
     >
-      {{ task.name | transformTask : "!" }}
+      <p style="width: 15em">
+        <span>{{ task.name | transformTask : "!" }}</span>
+      </p>
       <button type="button" class="btn btn-danger" (click)="remove(task)">
         Remove
       </button>
@@ -18,5 +20,5 @@
   </ol>
 </ng-container>
 <ng-template #noTask>
-  <p>No tasks... You have free time now...</p>
+  <p style="color: chartreuse">No tasks... You have free time now...</p>
 </ng-template>

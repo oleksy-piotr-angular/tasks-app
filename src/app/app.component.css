@@ -3,4 +3,8 @@
 }
 h1 {
   text-align: center;
+  margin: 0;
+  padding: 20px;
+  background-color: #424242;
+  color: chartreuse;
 }
